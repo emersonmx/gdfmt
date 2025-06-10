@@ -15,60 +15,71 @@ pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<Stri
     let kind = node.kind();
 
     match kind {
-        "source" => {
-            let mut result = String::new();
-            let mut cursor = node.walk();
-            let mut prev_kind: Option<&str> = None;
+        "source" => format_source(node, source, indent_level),
+        "function_definition" => format_function_definition(node, source, indent_level, &indent),
+        _ => format_default(node, source, &indent),
+    }
+}
 
-            for child in node.children(&mut cursor) {
-                if let Some(pk) = prev_kind {
-                    if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk) {
-                        result.push_str("\n\n");
-                    }
-                }
-                result += &format_node(child, source, indent_level)?;
-                prev_kind = Some(child.kind());
-            }
+fn format_source(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+    let mut result = String::new();
+    let mut cursor = node.walk();
+    let mut prev_kind: Option<&str> = None;
 
-            while result.ends_with("\n") {
-                result.pop();
+    for child in node.children(&mut cursor) {
+        if let Some(pk) = prev_kind {
+            if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk) {
+                result.push_str("\n\n");
             }
-            result.push('\n');
-            Ok(result)
         }
-        "function_definition" => {
-            let header = node
-                .child_by_field_name("name")
-                .map(|n| &source[n.byte_range()])
-                .unwrap_or("func_name");
+        result += &format_node(child, source, indent_level)?;
+        prev_kind = Some(child.kind());
+    }
 
-            let parameters_node = node.child_by_field_name("parameters");
-            let parameters_text = parameters_node
-                .map(|n| &source[n.byte_range()])
-                .unwrap_or("()");
+    while result.ends_with("\n") {
+        result.pop();
+    }
+    result.push('\n');
+    Ok(result)
+}
 
-            let body = node.child_by_field_name("body");
+fn format_function_definition(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+    indent: &str,
+) -> Result<String, Error> {
+    let header = node
+        .child_by_field_name("name")
+        .map(|n| &source[n.byte_range()])
+        .unwrap_or("func_name");
 
-            let mut result = format!(
-                "{}func {}{}:\n",
-                indent,
-                header.trim(),
-                parameters_text.trim()
-            );
+    let parameters_node = node.child_by_field_name("parameters");
+    let parameters_text = parameters_node
+        .map(|n| &source[n.byte_range()])
+        .unwrap_or("()");
 
-            if let Some(body_node) = body {
-                for child in body_node.children(&mut body_node.walk()) {
-                    result += &format_node(child, source, indent_level + 1)?;
-                }
-            }
-            Ok(result)
-        }
-        _ => {
-            let text = &source[node.byte_range()];
-            let formatted_text = format!("{}{}\n", indent, text.trim());
-            Ok(formatted_text)
+    let body = node.child_by_field_name("body");
+
+    let mut result = format!(
+        "{}func {}{}:\n",
+        indent,
+        header.trim(),
+        parameters_text.trim()
+    );
+
+    if let Some(body_node) = body {
+        for child in body_node.children(&mut body_node.walk()) {
+            result += &format_node(child, source, indent_level + 1)?;
         }
     }
+    Ok(result)
+}
+
+fn format_default(node: Node, source: &str, indent: &str) -> Result<String, Error> {
+    let text = &source[node.byte_range()];
+    let formatted_text = format!("{}{}\n", indent, text.trim());
+    Ok(formatted_text)
 }
 
 #[cfg(test)]
