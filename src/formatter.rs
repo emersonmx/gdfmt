@@ -72,8 +72,8 @@ mod tests {
     #[test]
     fn test_format_node_converts_spaces_to_tabs() {
         let source = r#"func my_function():
-        print("Hello, world!")
-        pass"#;
+    print("Hello, world!")
+    pass"#;
         let (tree, source_str) = parse_gscript(source);
         let root_node = tree.root_node();
 
