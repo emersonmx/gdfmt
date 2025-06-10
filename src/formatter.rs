@@ -19,33 +19,6 @@ pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<Stri
             }
             Ok(result)
         }
-        "function_definition" => {
-            let header = node
-                .child_by_field_name("name")
-                .map(|n| &source[n.byte_range()])
-                .unwrap_or("func_name");
-
-            let parameters_node = node.child_by_field_name("parameters");
-            let parameters_text = parameters_node
-                .map(|n| &source[n.byte_range()])
-                .unwrap_or("()");
-
-            let body = node.child_by_field_name("body");
-
-            let mut result = format!(
-                "{}func {}{}:\n",
-                indent,
-                header.trim(),
-                parameters_text.trim()
-            );
-
-            if let Some(body_node) = body {
-                for child in body_node.children(&mut body_node.walk()) {
-                    result += &format_node(child, source, indent_level + 1)?;
-                }
-            }
-            Ok(result)
-        }
         _ => {
             let text = &source[node.byte_range()];
             let formatted_text = format!("{}{}\n", indent, text.trim());
@@ -70,21 +43,27 @@ mod tests {
     }
 
     #[test]
-    fn test_format_node_converts_spaces_to_tabs() {
-        let source = r#"func my_function():
-    print("Hello, world!")
-    pass"#;
+    fn test_trim_trailing_spaces() {
+        let source = "var i = 0    ";
         let (tree, source_str) = parse_gscript(source);
         let root_node = tree.root_node();
 
-        let func_node = root_node
-            .children(&mut root_node.walk())
-            .find(|n| n.kind() == "function_definition")
-            .expect("Could not find function_definition node");
+        let formatted = format_node(root_node, &source_str, 0).unwrap();
 
-        let formatted = format_node(func_node, &source_str, 0).unwrap();
+        let expected = "var i = 0\n";
+        assert_eq!(formatted, expected);
+    }
 
-        let expected = "func my_function():\n\tprint(\"Hello, world!\")\n\tpass\n";
+    #[test]
+    fn test_keep_one_newline_at_end() {
+        let source = "var i = 0\n\n";
+        let (tree, source_str) = parse_gscript(source);
+        let root_node = tree.root_node();
+
+        let formatted = format_node(root_node, &source_str, 0).unwrap();
+        println!("{}", formatted);
+
+        let expected = "var i = 0\n";
         assert_eq!(formatted, expected);
     }
 }
