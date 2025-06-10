@@ -4,10 +4,11 @@ use tree_sitter::Node;
 use tree_sitter::Parser;
 use tree_sitter_gdscript::LANGUAGE as gdscript_language;
 
-const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
+const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 4] = [
     "function_definition",
     "class_definition",
     "class_name_statement",
+    "constructor_definition",
 ];
 
 #[derive(Error, Debug)]
