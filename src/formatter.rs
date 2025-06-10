@@ -12,9 +12,8 @@ pub enum Error {}
 
 pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let indent = "\t".repeat(indent_level);
-    let kind = node.kind();
 
-    match kind {
+    match node.kind() {
         "source" => format_source(node, source, indent_level),
         "function_definition" => format_function_definition(node, source, indent_level, &indent),
         _ => format_default(node, source, &indent),
