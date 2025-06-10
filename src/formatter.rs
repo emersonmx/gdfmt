@@ -172,4 +172,13 @@ mod tests {
             source_input
         );
     }
+
+    #[rstest]
+    fn compare_with_styleguide() {
+        let expected = std::fs::read_to_string("samples/styleguide.gd").unwrap();
+
+        let formatted = format_code(&expected).unwrap();
+
+        assert_eq!(formatted, expected);
+    }
 }
