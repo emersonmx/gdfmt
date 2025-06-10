@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use gdfmt::formatter::format_code;
+use gdfmt::format_code;
 
 fn main() -> Result<()> {
     let file_path = std::env::args()
