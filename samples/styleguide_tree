@@ -1,0 +1,109 @@
+(source
+    (class_name_statement (name))
+    (extends_statement (type (identifier)))
+    (comment)
+    (comment)
+    (comment)
+    (comment)
+
+    (signal_statement (name) (parameters (identifier) (identifier)))
+
+    (variable_statement (annotations (annotation (identifier))) name: (name) type: (type (identifier)))
+    (variable_statement name: (name) value: (true) setget: (setget set: (setter)))
+
+    (variable_statement (annotations (annotation (identifier))) name: (name) value: (identifier) setget: (setget set: (setter)))
+    (variable_statement (annotations (annotation (identifier))) name: (name) value: (attribute (identifier) (identifier)))
+
+    (constructor_definition parameters: (parameters)
+        body: (body
+            (expression_statement (call (identifier) (arguments (string))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters)
+        body: (body
+            (expression_statement (call (identifier) (arguments (string))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters)
+        body: (body
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments (identifier)))))
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters (identifier))
+        body: (body
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments (identifier)))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters (identifier))
+        body: (body
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments (identifier)))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters (identifier) (default_parameter (identifier) value: (dictionary)))
+        body: (body
+            (if_statement condition: (unary_operator (call (identifier) (arguments (identifier))))
+                body: (body
+                    (return_statement)
+                )
+            )
+
+            (variable_statement name: (name) value: (call (identifier) (arguments (identifier))))
+            (expression_statement (call (identifier) (arguments (binary_operator left: (attribute (identifier) (identifier)) right: (false)))))
+
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments))))
+            (expression_statement (assignment left: (attribute (identifier) (identifier)) right: (identifier)))
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments (identifier)))))
+            (expression_statement (attribute (identifier) (identifier) (attribute_call (identifier) (arguments (attribute (identifier) (identifier))))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters (identifier))
+        body: (body
+            (expression_statement (assignment left: (identifier) right: (identifier)))
+            (expression_statement (call (identifier) (arguments (identifier))))
+            (expression_statement (call (identifier) (arguments (identifier))))
+            (expression_statement (call (identifier) (arguments (unary_operator (identifier)))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters (identifier))
+        body: (body
+            (expression_statement (assignment left: (identifier) right: (identifier)))
+            (expression_statement (assignment left: (identifier) right: (attribute (identifier) (identifier))))
+        )
+    )
+
+
+    (function_definition name: (name) parameters: (parameters (identifier) (identifier))
+        body: (body
+            (expression_statement (call (identifier) (arguments (string))))
+            (expression_statement (attribute (identifier) (attribute_call (identifier) (arguments))))
+        )
+    )
+
+
+    (class_definition name: (name)
+        body: (body
+            (variable_statement name: (name) value: (integer))
+
+            (constructor_definition parameters: (parameters)
+                body: (body
+                    (expression_statement (call (identifier) (arguments (string))))
+                )
+            )
+        )
+    )
+)
