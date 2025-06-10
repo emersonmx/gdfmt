@@ -1,6 +1,12 @@
 use thiserror::Error;
 use tree_sitter::Node;
 
+const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
+    "function_definition",
+    "class_definition",
+    "class_name_statement",
+];
+
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("mixed indentation")]
@@ -19,7 +25,7 @@ pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<Stri
 
             for child in node.children(&mut cursor) {
                 if let Some(pk) = prev_kind {
-                    if pk == "function_definition" && child.kind() == "function_definition" {
+                    if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk) {
                         result.push_str("\n\n");
                     }
                 }
