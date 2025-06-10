@@ -14,8 +14,49 @@ pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<Stri
     match kind {
         "source" => {
             let mut result = String::new();
-            for child in node.children(&mut node.walk()) {
+            let mut cursor = node.walk();
+            let mut prev_kind: Option<&str> = None;
+
+            for child in node.children(&mut cursor) {
+                if let Some(pk) = prev_kind {
+                    if pk == "function_definition" && child.kind() == "function_definition" {
+                        result.push_str("\n\n");
+                    }
+                }
                 result += &format_node(child, source, indent_level)?;
+                prev_kind = Some(child.kind());
+            }
+
+            while result.ends_with("\n") {
+                result.pop();
+            }
+            result.push('\n');
+            Ok(result)
+        }
+        "function_definition" => {
+            let header = node
+                .child_by_field_name("name")
+                .map(|n| &source[n.byte_range()])
+                .unwrap_or("func_name");
+
+            let parameters_node = node.child_by_field_name("parameters");
+            let parameters_text = parameters_node
+                .map(|n| &source[n.byte_range()])
+                .unwrap_or("()");
+
+            let body = node.child_by_field_name("body");
+
+            let mut result = format!(
+                "{}func {}{}:\n",
+                indent,
+                header.trim(),
+                parameters_text.trim()
+            );
+
+            if let Some(body_node) = body {
+                for child in body_node.children(&mut body_node.walk()) {
+                    result += &format_node(child, source, indent_level + 1)?;
+                }
             }
             Ok(result)
         }
@@ -30,6 +71,7 @@ pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<Stri
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rstest::*;
     use tree_sitter::{Parser, Tree};
     use tree_sitter_gdscript::LANGUAGE as gdscript_language;
 
@@ -42,28 +84,77 @@ mod tests {
         (tree, source.to_string())
     }
 
-    #[test]
-    fn test_trim_trailing_spaces() {
-        let source = "var i = 0    ";
-        let (tree, source_str) = parse_gscript(source);
+    #[rstest]
+    #[case("var a = 0    ", "var a = 0\n")]
+    #[case("var a = 0\t", "var a = 0\n")]
+    #[case("var a = 0 \t", "var a = 0\n")]
+    #[case("var a = 0  \n \t", "var a = 0\n")]
+    fn trim_trailing_spaces(#[case] source_input: &str, #[case] expected_output: &str) {
+        let (tree, source_str) = parse_gscript(source_input);
         let root_node = tree.root_node();
 
         let formatted = format_node(root_node, &source_str, 0).unwrap();
 
-        let expected = "var i = 0\n";
-        assert_eq!(formatted, expected);
+        assert_eq!(
+            formatted, expected_output,
+            "Failed for input: {:?}",
+            source_input
+        );
     }
 
-    #[test]
-    fn test_keep_one_newline_at_end() {
-        let source = "var i = 0\n\n";
-        let (tree, source_str) = parse_gscript(source);
+    #[rstest]
+    #[case("var a = 0", "var a = 0\n")]
+    #[case("var b = 1\n", "var b = 1\n")]
+    #[case("var c = 2\n\n", "var c = 2\n")]
+    #[case("var d = 3\n\n\n", "var d = 3\n")]
+    fn keep_one_newline_at_end(#[case] source_input: &str, #[case] expected_output: &str) {
+        let (tree, source_str) = parse_gscript(source_input);
         let root_node = tree.root_node();
 
         let formatted = format_node(root_node, &source_str, 0).unwrap();
-        println!("{}", formatted);
 
-        let expected = "var i = 0\n";
-        assert_eq!(formatted, expected);
+        assert_eq!(
+            formatted, expected_output,
+            "Failed for input: {:?}",
+            source_input
+        );
+    }
+
+    #[rstest]
+    #[case(
+        "func a():\n\tpass\nfunc b():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "func a():\n\tpass\n\nfunc b():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "func a():\n\tpass\n\n\n\nfunc b():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "\nfunc a():\n\tpass\nfunc b():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "\n\nfunc a():\n\tpass\nfunc b():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    fn test_keep_two_lines_away(#[case] source_input: &str, #[case] expected_output: &str) {
+        let (tree, source_str) = parse_gscript(source_input);
+        let root_node = tree.root_node();
+
+        let formatted = format_node(root_node, &source_str, 0).unwrap();
+
+        assert_eq!(
+            formatted, expected_output,
+            "Failed for input: {:?}",
+            source_input
+        );
     }
 }
