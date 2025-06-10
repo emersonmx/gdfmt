@@ -8,10 +8,7 @@ const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
 ];
 
 #[derive(Error, Debug)]
-pub enum Error {
-    #[error("mixed indentation")]
-    MixedIndentation,
-}
+pub enum Error {}
 
 pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let indent = "\t".repeat(indent_level);
