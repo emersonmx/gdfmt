@@ -1,4 +1,6 @@
-
+class_name Sample
+class SomeInnerClass:
+	var a = 5
 
 
 
@@ -11,6 +13,8 @@ func third():
     pass
 
 
+class SomeInnerClass:
+	var a = 5
 func fourth():
     pass
 
