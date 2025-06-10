@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.98"
+thiserror = "2.0.12"
+tree-sitter = "0.25.6"
+tree-sitter-gdscript = "5.0.1"
