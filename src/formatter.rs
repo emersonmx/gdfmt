@@ -1,5 +1,8 @@
 use thiserror::Error;
+use tree_sitter::LanguageError;
 use tree_sitter::Node;
+use tree_sitter::Parser;
+use tree_sitter_gdscript::LANGUAGE as gdscript_language;
 
 const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
     "function_definition",
@@ -8,9 +11,26 @@ const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
 ];
 
 #[derive(Error, Debug)]
-pub enum Error {}
+pub enum Error {
+    #[error("unable to load language")]
+    UnableToLoadLanguage(#[from] LanguageError),
+    #[error("unable to parse: {0}")]
+    UnableToParse(String),
+}
 
-pub fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+pub fn format_code(source: &str) -> Result<String, Error> {
+    let mut parser = Parser::new();
+    parser.set_language(&gdscript_language.into())?;
+
+    let tree = parser
+        .parse(source, None)
+        .ok_or_else(|| Error::UnableToParse("Failed to parse source code".to_string()))?;
+    let root_node = tree.root_node();
+
+    format_node_walk(root_node, source, 0)
+}
+
+fn format_node_walk(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let indent = "\t".repeat(indent_level);
 
     match node.kind() {
@@ -31,7 +51,7 @@ fn format_source(node: Node, source: &str, indent_level: usize) -> Result<String
                 result.push_str("\n\n");
             }
         }
-        result += &format_node(child, source, indent_level)?;
+        result += &format_node_walk(child, source, indent_level)?;
         prev_kind = Some(child.kind());
     }
 
@@ -69,7 +89,7 @@ fn format_function_definition(
 
     if let Some(body_node) = body {
         for child in body_node.children(&mut body_node.walk()) {
-            result += &format_node(child, source, indent_level + 1)?;
+            result += &format_node_walk(child, source, indent_level + 1)?;
         }
     }
     Ok(result)
@@ -85,17 +105,6 @@ fn format_default(node: Node, source: &str, indent: &str) -> Result<String, Erro
 mod tests {
     use super::*;
     use rstest::*;
-    use tree_sitter::{Parser, Tree};
-    use tree_sitter_gdscript::LANGUAGE as gdscript_language;
-
-    fn parse_gscript(source: &str) -> (Tree, String) {
-        let mut parser = Parser::new();
-        parser
-            .set_language(&gdscript_language.into())
-            .expect("Error loading GDScript grammar");
-        let tree = parser.parse(source, None).expect("Error parsing code");
-        (tree, source.to_string())
-    }
 
     #[rstest]
     #[case("var a = 0    ", "var a = 0\n")]
@@ -103,10 +112,7 @@ mod tests {
     #[case("var a = 0 \t", "var a = 0\n")]
     #[case("var a = 0  \n \t", "var a = 0\n")]
     fn trim_trailing_spaces(#[case] source_input: &str, #[case] expected_output: &str) {
-        let (tree, source_str) = parse_gscript(source_input);
-        let root_node = tree.root_node();
-
-        let formatted = format_node(root_node, &source_str, 0).unwrap();
+        let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
             formatted, expected_output,
@@ -121,10 +127,7 @@ mod tests {
     #[case("var c = 2\n\n", "var c = 2\n")]
     #[case("var d = 3\n\n\n", "var d = 3\n")]
     fn keep_one_newline_at_end(#[case] source_input: &str, #[case] expected_output: &str) {
-        let (tree, source_str) = parse_gscript(source_input);
-        let root_node = tree.root_node();
-
-        let formatted = format_node(root_node, &source_str, 0).unwrap();
+        let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
             formatted, expected_output,
@@ -159,10 +162,7 @@ mod tests {
         "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
     )]
     fn test_keep_two_lines_away(#[case] source_input: &str, #[case] expected_output: &str) {
-        let (tree, source_str) = parse_gscript(source_input);
-        let root_node = tree.root_node();
-
-        let formatted = format_node(root_node, &source_str, 0).unwrap();
+        let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
             formatted, expected_output,
