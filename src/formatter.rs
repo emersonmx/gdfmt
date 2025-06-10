@@ -163,7 +163,7 @@ mod tests {
         "\n\nfunc a():\n\tpass\nfunc b():\n\tpass",
         "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
     )]
-    fn keep_two_lines_away(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
