@@ -47,7 +47,9 @@ fn format_source(node: Node, source: &str, indent_level: usize) -> Result<String
 
     for child in node.children(&mut cursor) {
         if let Some(pk) = prev_kind {
-            if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk) {
+            if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk)
+                || KINDS_WITH_TWO_LINES_BETWEEN.contains(&child.kind())
+            {
                 result.push_str("\n\n");
             }
         }
