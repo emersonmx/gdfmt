@@ -35,9 +35,6 @@ fn format_node_walk(node: Node, source: &str, indent_level: usize) -> Result<Str
 
     match node.kind() {
         "source" => format_source_kind(node, source, indent_level),
-        "function_definition" => {
-            format_function_definition_kind(node, source, indent_level, &indent)
-        }
         _ => format_any_kind(node, source, &indent),
     }
 }
@@ -48,14 +45,11 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
     let mut prev_kind: Option<&str> = None;
 
     for child in node.children(&mut cursor) {
-        if let Some(pk) = prev_kind {
-            if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk)
-                || KINDS_WITH_TWO_LINES_BETWEEN.contains(&child.kind())
-            {
-                output.push_str("\n\n");
-            }
+        if KINDS_WITH_TWO_LINES_BETWEEN.contains(&child.kind()) && prev_kind.is_some() {
+            output.push_str("\n\n");
         }
-        output += &format_node_walk(child, source, indent_level)?;
+        let child_output = format_node_walk(child, source, indent_level)?;
+        output.push_str(&child_output);
         prev_kind = Some(child.kind());
     }
 
@@ -63,39 +57,6 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
         output.pop();
     }
     output.push('\n');
-    Ok(output)
-}
-
-fn format_function_definition_kind(
-    node: Node,
-    source: &str,
-    indent_level: usize,
-    indent: &str,
-) -> Result<String, Error> {
-    let header = node
-        .child_by_field_name("name")
-        .map(|n| &source[n.byte_range()])
-        .unwrap_or("func_name");
-
-    let parameters_node = node.child_by_field_name("parameters");
-    let parameters_text = parameters_node
-        .map(|n| &source[n.byte_range()])
-        .unwrap_or("()");
-
-    let body = node.child_by_field_name("body");
-
-    let mut output = format!(
-        "{}func {}{}:\n",
-        indent,
-        header.trim(),
-        parameters_text.trim()
-    );
-
-    if let Some(body_node) = body {
-        for child in body_node.children(&mut body_node.walk()) {
-            output += &format_node_walk(child, source, indent_level + 1)?;
-        }
-    }
     Ok(output)
 }
 
