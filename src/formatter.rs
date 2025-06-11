@@ -34,14 +34,16 @@ fn format_node_walk(node: Node, source: &str, indent_level: usize) -> Result<Str
     let indent = "\t".repeat(indent_level);
 
     match node.kind() {
-        "source" => format_source(node, source, indent_level),
-        "function_definition" => format_function_definition(node, source, indent_level, &indent),
-        _ => format_default(node, source, &indent),
+        "source" => format_source_kind(node, source, indent_level),
+        "function_definition" => {
+            format_function_definition_kind(node, source, indent_level, &indent)
+        }
+        _ => format_any_kind(node, source, &indent),
     }
 }
 
-fn format_source(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
-    let mut result = String::new();
+fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+    let mut output = String::new();
     let mut cursor = node.walk();
     let mut prev_kind: Option<&str> = None;
 
@@ -50,21 +52,21 @@ fn format_source(node: Node, source: &str, indent_level: usize) -> Result<String
             if KINDS_WITH_TWO_LINES_BETWEEN.contains(&pk)
                 || KINDS_WITH_TWO_LINES_BETWEEN.contains(&child.kind())
             {
-                result.push_str("\n\n");
+                output.push_str("\n\n");
             }
         }
-        result += &format_node_walk(child, source, indent_level)?;
+        output += &format_node_walk(child, source, indent_level)?;
         prev_kind = Some(child.kind());
     }
 
-    while result.ends_with("\n") {
-        result.pop();
+    while output.ends_with("\n") {
+        output.pop();
     }
-    result.push('\n');
-    Ok(result)
+    output.push('\n');
+    Ok(output)
 }
 
-fn format_function_definition(
+fn format_function_definition_kind(
     node: Node,
     source: &str,
     indent_level: usize,
@@ -82,7 +84,7 @@ fn format_function_definition(
 
     let body = node.child_by_field_name("body");
 
-    let mut result = format!(
+    let mut output = format!(
         "{}func {}{}:\n",
         indent,
         header.trim(),
@@ -91,16 +93,16 @@ fn format_function_definition(
 
     if let Some(body_node) = body {
         for child in body_node.children(&mut body_node.walk()) {
-            result += &format_node_walk(child, source, indent_level + 1)?;
+            output += &format_node_walk(child, source, indent_level + 1)?;
         }
     }
-    Ok(result)
+    Ok(output)
 }
 
-fn format_default(node: Node, source: &str, indent: &str) -> Result<String, Error> {
+fn format_any_kind(node: Node, source: &str, indent: &str) -> Result<String, Error> {
     let text = &source[node.byte_range()];
-    let formatted_text = format!("{}{}\n", indent, text.trim());
-    Ok(formatted_text)
+    let output = format!("{}{}\n", indent, text.trim());
+    Ok(output)
 }
 
 #[cfg(test)]
