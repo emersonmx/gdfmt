@@ -36,11 +36,9 @@ pub fn format_code(source: &str) -> Result<String, Error> {
 }
 
 fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
-    let indent = "\t".repeat(indent_level);
-
     match node.kind() {
         "source" => format_source_node(node, source, indent_level),
-        _ => format_any_node(node, source, &indent),
+        _ => format_any_node(node, source, indent_level),
     }
 }
 
@@ -98,7 +96,8 @@ fn get_gap_lines(node: Node, source: &str) -> String {
     lines.to_string()
 }
 
-fn format_any_node(node: Node, source: &str, indent: &str) -> Result<String, Error> {
+fn format_any_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+    let indent = "\t".repeat(indent_level);
     let text = &source[node.byte_range()];
     let output = format!("{}{}\n", indent, text.trim());
     Ok(output)
