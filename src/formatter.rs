@@ -61,13 +61,6 @@ fn format_source_node(node: Node, source: &str, indent_level: usize) -> Result<S
     Ok(output)
 }
 
-fn strip_end_lines(source: &mut String) {
-    while source.ends_with("\n") {
-        source.pop();
-    }
-    source.push('\n');
-}
-
 fn get_root_gap_lines(node: Node, source: &str) -> String {
     let prev_node = node.prev_sibling();
     let lines = match (
@@ -98,6 +91,13 @@ fn get_gap_lines(node: Node, source: &str) -> String {
     let gap_lines: String = gap_str.chars().filter(|c| *c == '\n').collect();
     let lines = if gap_lines.len() > 1 { "\n" } else { "" };
     lines.to_string()
+}
+
+fn strip_end_lines(source: &mut String) {
+    while source.ends_with("\n") {
+        source.pop();
+    }
+    source.push('\n');
 }
 
 fn format_any_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
