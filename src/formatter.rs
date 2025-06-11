@@ -42,15 +42,13 @@ fn format_node_walk(node: Node, source: &str, indent_level: usize) -> Result<Str
 fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let mut output = String::new();
     let mut cursor = node.walk();
-    let mut prev_node: Option<Node> = None;
-
     for child in node.children(&mut cursor) {
-        let gap_lines = &&get_root_gap_lines(child, prev_node, source);
+        let prev_node = child.prev_sibling();
+        let gap_lines = &get_root_gap_lines(child, prev_node, source);
         output.push_str(gap_lines);
 
         let child_output = format_node_walk(child, source, indent_level)?;
         output.push_str(&child_output);
-        prev_node = Some(child);
     }
 
     while output.ends_with("\n") {
