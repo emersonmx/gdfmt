@@ -198,7 +198,7 @@ mod tests {
     }
 
     #[rstest]
-    fn compare_with_styleguide() {
+    fn compare_with_sample_styleguide() {
         let expected = std::fs::read_to_string("samples/styleguide.gd").unwrap();
 
         let formatted = format_code(&expected).unwrap();
