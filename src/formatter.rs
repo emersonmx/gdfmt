@@ -22,10 +22,15 @@ pub fn format_code(source: &str) -> Result<String, Error> {
     let mut parser = Parser::new();
     parser.set_language(&gdscript_language.into())?;
 
-    let tree = parser
-        .parse(source, None)
-        .ok_or_else(|| Error::UnableToParse("Failed to parse source code".to_string()))?;
+    let tree = parser.parse(source, None).ok_or_else(|| {
+        Error::UnableToParse("parser returned no tree (internal error)".to_string())
+    })?;
     let root_node = tree.root_node();
+    if root_node.has_error() {
+        return Err(Error::UnableToParse(
+            "syntax errors found in code".to_string(),
+        ));
+    }
 
     format_node_walk(root_node, source, 0)
 }
@@ -170,6 +175,12 @@ mod tests {
             "Failed for input: {:?}",
             source_input
         );
+    }
+
+    #[rstest]
+    #[should_panic]
+    fn throw_error_when_syntax_errors() {
+        format_code(".").unwrap();
     }
 
     #[rstest]
