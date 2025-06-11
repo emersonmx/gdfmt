@@ -49,8 +49,7 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, 
 
 fn format_source_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let mut output = String::new();
-    let mut cursor = node.walk();
-    for child in node.children(&mut cursor) {
+    for child in node.children(&mut node.walk()) {
         let gap_lines = &get_root_gap_lines(child, source);
         output.push_str(gap_lines);
 
