@@ -178,9 +178,9 @@ mod tests {
     }
 
     #[rstest]
-    #[should_panic]
-    fn throw_error_when_syntax_errors() {
-        format_code(".").unwrap();
+    fn returns_error_on_syntax_errors() {
+        let result = format_code(".");
+        assert!(matches!(result, Err(Error::UnableToParse(_))));
     }
 
     #[rstest]
