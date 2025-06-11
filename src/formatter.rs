@@ -101,7 +101,7 @@ fn strip_end_lines(source: &mut String) {
 }
 
 fn format_any_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
-    let indent = "\t".repeat(indent_level);
+    let indent = get_indent(indent_level);
     let text = &source[node.byte_range()];
     let mut output = String::new();
 
@@ -110,6 +110,10 @@ fn format_any_node(node: Node, source: &str, indent_level: usize) -> Result<Stri
     output.push('\n');
 
     Ok(output)
+}
+
+fn get_indent(indent_level: usize) -> String {
+    "\t".repeat(indent_level)
 }
 
 #[cfg(test)]
