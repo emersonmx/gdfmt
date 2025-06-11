@@ -55,11 +55,15 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
         output.push_str(&child_output);
     }
 
-    while output.ends_with("\n") {
-        output.pop();
-    }
-    output.push('\n');
+    strip_end_lines(&mut output);
     Ok(output)
+}
+
+fn strip_end_lines(source: &mut String) {
+    while source.ends_with("\n") {
+        source.pop();
+    }
+    source.push('\n');
 }
 
 fn get_root_gap_lines(node: Node, source: &str) -> String {
