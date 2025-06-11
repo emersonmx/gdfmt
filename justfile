@@ -2,7 +2,7 @@
     cargo build
 
 @run:
-    cargo run
+    cargo run --quiet
 
 @watch:
     bacon
