@@ -42,15 +42,15 @@ fn format_node_walk(node: Node, source: &str, indent_level: usize) -> Result<Str
 fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let mut output = String::new();
     let mut cursor = node.walk();
-    let mut prev_kind: Option<&str> = None;
+    let mut prev_node: Option<Node> = None;
 
     for child in node.children(&mut cursor) {
-        if KINDS_WITH_TWO_LINES_BETWEEN.contains(&child.kind()) && prev_kind.is_some() {
-            output.push_str("\n\n");
-        }
+        let gap_lines = &get_gap_lines(child, prev_node, source);
+        output.push_str(gap_lines);
+
         let child_output = format_node_walk(child, source, indent_level)?;
         output.push_str(&child_output);
-        prev_kind = Some(child.kind());
+        prev_node = Some(child);
     }
 
     while output.ends_with("\n") {
@@ -58,6 +58,33 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
     }
     output.push('\n');
     Ok(output)
+}
+
+fn get_gap_lines(current: Node, previous: Option<Node>, source: &str) -> String {
+    let gap_start_byte = if let Some(prev_node) = previous {
+        prev_node.end_byte()
+    } else {
+        current.start_byte()
+    };
+    let gap_end_byte = current.start_byte();
+    let gap_str = &source[gap_start_byte..gap_end_byte];
+    let gap_lines: String = gap_str.chars().filter(|c| *c == '\n').collect();
+
+    let lines = match (
+        KINDS_WITH_TWO_LINES_BETWEEN.contains(&current.kind()),
+        previous.is_some(),
+    ) {
+        (true, true) => "\n\n",
+        (false, true) => {
+            if gap_lines.len() > 1 {
+                "\n"
+            } else {
+                ""
+            }
+        }
+        _ => "",
+    };
+    lines.to_string()
 }
 
 fn format_any_kind(node: Node, source: &str, indent: &str) -> Result<String, Error> {
@@ -92,6 +119,20 @@ mod tests {
     #[case("var c = 2\n\n", "var c = 2\n")]
     #[case("var d = 3\n\n\n", "var d = 3\n")]
     fn keep_one_newline_at_end(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(
+            formatted, expected_output,
+            "Failed for input: {:?}",
+            source_input
+        );
+    }
+
+    #[rstest]
+    #[case("var a = 0\nvar b = 0", "var a = 0\nvar b = 0\n")]
+    #[case("var a = 0\n\nvar b = 0", "var a = 0\n\nvar b = 0\n")]
+    #[case("var a = 0\n\n\n\nvar b = 0", "var a = 0\n\nvar b = 0\n")]
+    fn keep_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
