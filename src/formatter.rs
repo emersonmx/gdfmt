@@ -63,13 +63,13 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
 }
 
 fn get_root_gap_lines(node: Node, source: &str) -> String {
-    let previous = node.prev_sibling();
+    let prev_node = node.prev_sibling();
     let lines = match (
         KINDS_WITH_TWO_LINES_BETWEEN.contains(&node.kind()),
-        previous,
+        prev_node,
     ) {
-        (true, Some(pn)) => {
-            if pn.kind() == "comment" {
+        (true, Some(prev)) => {
+            if prev.kind() == "comment" {
                 ""
             } else {
                 "\n\n"
