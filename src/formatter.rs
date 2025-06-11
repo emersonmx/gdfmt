@@ -66,9 +66,15 @@ fn get_root_gap_lines(node: Node, source: &str) -> String {
     let previous = node.prev_sibling();
     let lines = match (
         KINDS_WITH_TWO_LINES_BETWEEN.contains(&node.kind()),
-        previous.is_some(),
+        previous,
     ) {
-        (true, true) => "\n\n",
+        (true, Some(pn)) => {
+            if pn.kind() == "comment" {
+                ""
+            } else {
+                "\n\n"
+            }
+        }
         _ => &get_gap_lines(node, source),
     };
     lines.to_string()
@@ -167,6 +173,10 @@ mod tests {
     #[case(
         "\n\nfunc a():\n\tpass\nfunc b():\n\tpass",
         "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "# a comment\n\nfunc a():\n\tpass\nfunc b():\n\tpass",
+        "# a comment\nfunc a():\n\tpass\n\n\nfunc b():\n\tpass\n"
     )]
     fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
