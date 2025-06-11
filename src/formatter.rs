@@ -48,8 +48,7 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
     let mut output = String::new();
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
-        let prev_node = child.prev_sibling();
-        let gap_lines = &get_root_gap_lines(child, prev_node, source);
+        let gap_lines = &get_root_gap_lines(child, source);
         output.push_str(gap_lines);
 
         let child_output = format_node_walk(child, source, indent_level)?;
@@ -63,24 +62,26 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
     Ok(output)
 }
 
-fn get_root_gap_lines(current: Node, previous: Option<Node>, source: &str) -> String {
+fn get_root_gap_lines(node: Node, source: &str) -> String {
+    let previous = node.prev_sibling();
     let lines = match (
-        KINDS_WITH_TWO_LINES_BETWEEN.contains(&current.kind()),
+        KINDS_WITH_TWO_LINES_BETWEEN.contains(&node.kind()),
         previous.is_some(),
     ) {
         (true, true) => "\n\n",
-        _ => &get_gap_lines(current, previous, source),
+        _ => &get_gap_lines(node, source),
     };
     lines.to_string()
 }
 
-fn get_gap_lines(current: Node, previous: Option<Node>, source: &str) -> String {
+fn get_gap_lines(node: Node, source: &str) -> String {
+    let previous = node.prev_sibling();
     let gap_start_byte = if let Some(prev_node) = previous {
         prev_node.end_byte()
     } else {
-        current.start_byte()
+        node.start_byte()
     };
-    let gap_end_byte = current.start_byte();
+    let gap_end_byte = node.start_byte();
     let gap_str = &source[gap_start_byte..gap_end_byte];
     let gap_lines: String = gap_str.chars().filter(|c| *c == '\n').collect();
     let lines = if gap_lines.len() > 1 { "\n" } else { "" };
