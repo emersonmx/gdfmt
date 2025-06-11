@@ -23,12 +23,12 @@ pub fn format_code(source: &str) -> Result<String, Error> {
     parser.set_language(&gdscript_language.into())?;
 
     let tree = parser.parse(source, None).ok_or_else(|| {
-        Error::UnableToParse("parser returned no tree (internal error)".to_string())
+        Error::UnableToParse("Internal parser error: Failed to produce syntax tree.".to_string())
     })?;
     let root_node = tree.root_node();
     if root_node.has_error() {
         return Err(Error::UnableToParse(
-            "syntax errors found in code".to_string(),
+            "Source code contains syntax errors.".to_string(),
         ));
     }
 
