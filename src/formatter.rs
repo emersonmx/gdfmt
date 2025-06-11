@@ -39,12 +39,12 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, 
     let indent = "\t".repeat(indent_level);
 
     match node.kind() {
-        "source" => format_source_kind(node, source, indent_level),
-        _ => format_any_kind(node, source, &indent),
+        "source" => format_source_node(node, source, indent_level),
+        _ => format_any_node(node, source, &indent),
     }
 }
 
-fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+fn format_source_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let mut output = String::new();
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -98,7 +98,7 @@ fn get_gap_lines(node: Node, source: &str) -> String {
     lines.to_string()
 }
 
-fn format_any_kind(node: Node, source: &str, indent: &str) -> Result<String, Error> {
+fn format_any_node(node: Node, source: &str, indent: &str) -> Result<String, Error> {
     let text = &source[node.byte_range()];
     let output = format!("{}{}\n", indent, text.trim());
     Ok(output)
