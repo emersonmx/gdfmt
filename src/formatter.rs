@@ -32,10 +32,10 @@ pub fn format_code(source: &str) -> Result<String, Error> {
         ));
     }
 
-    format_node_walk(root_node, source, 0)
+    format_node(root_node, source, 0)
 }
 
-fn format_node_walk(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let indent = "\t".repeat(indent_level);
 
     match node.kind() {
@@ -51,7 +51,7 @@ fn format_source_kind(node: Node, source: &str, indent_level: usize) -> Result<S
         let gap_lines = &get_root_gap_lines(child, source);
         output.push_str(gap_lines);
 
-        let child_output = format_node_walk(child, source, indent_level)?;
+        let child_output = format_node(child, source, indent_level)?;
         output.push_str(&child_output);
     }
 
