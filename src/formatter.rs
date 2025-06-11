@@ -4,10 +4,15 @@ use tree_sitter::Node;
 use tree_sitter::Parser;
 use tree_sitter_gdscript::LANGUAGE as gdscript_language;
 
+const SOURCE_KIND: &str = "source";
+const COMMENT_KIND: &str = "comment";
+const FUNCTION_DEFINITION_KIND: &str = "function_definition";
+const CLASS_DEFINITION_KIND: &str = "class_definition";
+const CONSTRUCTOR_DEFINITION_KIND: &str = "constructor_definition";
 const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
-    "function_definition",
-    "class_definition",
-    "constructor_definition",
+    FUNCTION_DEFINITION_KIND,
+    CLASS_DEFINITION_KIND,
+    CONSTRUCTOR_DEFINITION_KIND,
 ];
 
 #[derive(Error, Debug)]
@@ -37,7 +42,7 @@ pub fn format_code(source: &str) -> Result<String, Error> {
 
 fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     match node.kind() {
-        "source" => format_source_node(node, source, indent_level),
+        SOURCE_KIND => format_source_node(node, source, indent_level),
         _ => format_any_node(node, source, indent_level),
     }
 }
@@ -71,7 +76,7 @@ fn get_root_gap_lines(node: Node, source: &str) -> String {
         prev_node,
     ) {
         (true, Some(prev)) => {
-            if prev.kind() == "comment" {
+            if prev.kind() == COMMENT_KIND {
                 &get_gap_lines(node, source)
             } else {
                 "\n\n"
