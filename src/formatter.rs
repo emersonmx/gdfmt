@@ -70,7 +70,7 @@ fn get_root_gap_lines(node: Node, source: &str) -> String {
     ) {
         (true, Some(prev)) => {
             if prev.kind() == "comment" {
-                ""
+                &get_gap_lines(node, source)
             } else {
                 "\n\n"
             }
@@ -176,7 +176,7 @@ mod tests {
     )]
     #[case(
         "# a comment\n\nfunc a():\n\tpass\nfunc b():\n\tpass",
-        "# a comment\nfunc a():\n\tpass\n\n\nfunc b():\n\tpass\n"
+        "# a comment\n\nfunc a():\n\tpass\n\n\nfunc b():\n\tpass\n"
     )]
     fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
