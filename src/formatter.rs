@@ -103,7 +103,12 @@ fn strip_end_lines(source: &mut String) {
 fn format_any_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
     let indent = "\t".repeat(indent_level);
     let text = &source[node.byte_range()];
-    let output = format!("{}{}\n", indent, text.trim());
+    let mut output = String::new();
+
+    output.push_str(&indent);
+    output.push_str(text.trim());
+    output.push('\n');
+
     Ok(output)
 }
 
