@@ -1,5 +1,6 @@
 use tree_sitter::Node;
 
+#[allow(dead_code)]
 pub fn print_tree(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
     let indent = "    ".repeat(indent_level);
