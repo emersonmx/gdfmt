@@ -54,6 +54,7 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> String {
         // without trailing whitespace
         "setget" => format_setget_node(node, source, indent_level),
         "parameters" => format_parameters_node(node, source, indent_level),
+        "default_parameter" => format_default_parameter_node(node, source, indent_level),
         _ => get_node_text(node, source).to_string(),
     }
 }
@@ -165,11 +166,37 @@ fn format_setget_node(node: Node, source: &str, indent_level: usize) -> String {
     output
 }
 
-fn format_parameters_node(node: Node, source: &str, _indent_level: usize) -> String {
-    let text = get_node_text(node, source);
+fn format_parameters_node(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
 
-    output.push_str(text);
+    for child in node.children(&mut node.walk()) {
+        let prev_sibling = child.prev_sibling().map(|ps| ps.kind());
+        let text = &format_node(child, source, indent_level);
+        let (text, space): (&str, &str) = match child.kind() {
+            "(" | ")" | "=" | "," => (text, ""),
+            "identifier" if prev_sibling == Some("(") => (text, ""),
+            "identifier" => (text, " "),
+            _ => (text, " "),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+
+    output
+}
+
+fn format_default_parameter_node(node: Node, source: &str, indent_level: usize) -> String {
+    let mut output = String::new();
+
+    for child in node.children(&mut node.walk()) {
+        let text = &format_node(child, source, indent_level);
+        let (text, space): (&str, &str) = match child.kind() {
+            "identifier" => (text, ""),
+            _ => (text, ""),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
 
     output
 }
