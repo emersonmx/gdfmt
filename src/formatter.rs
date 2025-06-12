@@ -97,8 +97,7 @@ fn format_function_definition_node(node: Node, source: &str, indent_level: usize
     output
 }
 
-fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
-    let text = get_node_text(node, source);
+fn format_class_definition_node(node: Node, source: &str, indent_level: usize) -> String {
     let parent_kind = node.parent().map(|n| n.kind());
     let gap_lines = match parent_kind {
         Some("source") => get_root_gap_lines(node, source),
@@ -107,7 +106,19 @@ fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) 
     let mut output = String::new();
 
     output.push_str(&gap_lines);
-    output.push_str(text);
+
+    for (i, child) in node.children(&mut node.walk()).enumerate() {
+        let text = &format_node(child, source, indent_level + 1);
+        let (text, space): (&str, &str) = match child.kind() {
+            _ if i == 0 => (text, ""),
+            ":" => (text, ""),
+            "body" => (&format_node(child, source, indent_level), ""),
+            _ => (text, " "),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+
     output.push('\n');
 
     output
