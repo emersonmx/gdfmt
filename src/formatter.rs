@@ -371,6 +371,30 @@ mod tests {
         "# a comment\n\nfunc a():\n\tpass\nfunc b():\n\tpass",
         "# a comment\n\nfunc a():\n\tpass\n\n\nfunc b():\n\tpass\n"
     )]
+    #[case(
+        "# a comment\n\nclass A:\n\tpass\nclass B:\n\tpass",
+        "# a comment\n\nclass A:\n\tpass\n\n\nclass B:\n\tpass\n"
+    )]
+    #[case(
+        "# a comment\n\nfunc _init():\n\tpass\nfunc b():\n\tpass",
+        "# a comment\n\nfunc _init():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "func _init():\n\tpass\nfunc b():\n\tpass",
+        "func _init():\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "func a():\n\tpass\nfunc _init():\n\tpass",
+        "func a():\n\tpass\n\n\nfunc _init():\n\tpass\n"
+    )]
+    #[case(
+        "class A:\n\tpass\nfunc b():\n\tpass",
+        "class A:\n\tpass\n\n\nfunc b():\n\tpass\n"
+    )]
+    #[case(
+        "func a():\n\tpass\nclass B:\n\tpass",
+        "func a():\n\tpass\n\n\nclass B:\n\tpass\n"
+    )]
     fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
