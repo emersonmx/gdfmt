@@ -53,6 +53,7 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> String {
         }
         // without trailing whitespace
         "setget" => format_setget_node(node, source, indent_level),
+        "parameters" => format_parameters_node(node, source, indent_level),
         _ => get_node_text(node, source).to_string(),
     }
 }
@@ -68,8 +69,7 @@ fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
     output
 }
 
-fn format_function_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
-    let text = get_node_text(node, source); // TODO: Try format_node
+fn format_function_definition_node(node: Node, source: &str, indent_level: usize) -> String {
     let parent_kind = node.parent().map(|n| n.kind());
     let gap_lines = match parent_kind {
         Some("source") => get_root_gap_lines(node, source),
@@ -78,7 +78,19 @@ fn format_function_definition_node(node: Node, source: &str, _indent_level: usiz
     let mut output = String::new();
 
     output.push_str(&gap_lines);
-    output.push_str(text);
+
+    for (i, child) in node.children(&mut node.walk()).enumerate() {
+        let text = &format_node(child, source, indent_level + 1); // TODO: Try format_node
+        let (text, space): (&str, &str) = match child.kind() {
+            _ if i == 0 => (text, ""),
+            "parameters" => (&format_node(child, source, indent_level), ""),
+            ":" => (text, ""),
+            _ => (text, " "),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+
     output.push('\n');
 
     output
@@ -137,6 +149,15 @@ fn format_setget_node(node: Node, source: &str, indent_level: usize) -> String {
 
         output.push_str(text);
     }
+
+    output
+}
+
+fn format_parameters_node(node: Node, source: &str, _indent_level: usize) -> String {
+    let text = get_node_text(node, source);
+    let mut output = String::new();
+
+    output.push_str(text);
 
     output
 }
