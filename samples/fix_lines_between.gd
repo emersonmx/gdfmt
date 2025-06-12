@@ -10,28 +10,28 @@ var d = 1
 class SomeInnerClass:
 	var a = 5
 func _init():
-    pass
+	pass
 
 
 func first():
-    pass
+	pass
 func second():
-    pass
+	pass
 
 func third():
-    pass
+	pass
 
 
 class SomeInnerClass:
 	var a = 5
 func fourth():
-    pass
+	pass
 
 
 
 func fifth():
-    pass
+	pass
 
 
 func sixth():
-    pass
+	pass
