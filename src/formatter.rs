@@ -4,15 +4,10 @@ use tree_sitter::Node;
 use tree_sitter::Parser;
 use tree_sitter_gdscript::LANGUAGE as gdscript_language;
 
-const SOURCE_KIND: &str = "source";
-const COMMENT_KIND: &str = "comment";
-const FUNCTION_DEFINITION_KIND: &str = "function_definition";
-const CLASS_DEFINITION_KIND: &str = "class_definition";
-const CONSTRUCTOR_DEFINITION_KIND: &str = "constructor_definition";
 const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
-    FUNCTION_DEFINITION_KIND,
-    CLASS_DEFINITION_KIND,
-    CONSTRUCTOR_DEFINITION_KIND,
+    "function_definition",
+    "class_definition",
+    "constructor_definition",
 ];
 
 #[derive(Error, Debug)]
@@ -37,28 +32,28 @@ pub fn format_code(source: &str) -> Result<String, Error> {
         ));
     }
 
-    format_node(root_node, source, 0)
+    Ok(format_node(root_node, source, 0))
 }
 
-fn format_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+fn format_node(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
-        SOURCE_KIND => format_source_node(node, source, indent_level),
+        "source" => format_source_node(node, source, indent_level),
         _ => format_any_node(node, source, indent_level),
     }
 }
 
-fn format_source_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
     for child in node.children(&mut node.walk()) {
         let gap_lines = &get_root_gap_lines(child, source);
         output.push_str(gap_lines);
 
-        let child_output = format_node(child, source, indent_level)?;
+        let child_output = format_node(child, source, indent_level);
         output.push_str(&child_output);
     }
 
     strip_end_lines(&mut output);
-    Ok(output)
+    output
 }
 
 fn get_root_gap_lines(node: Node, source: &str) -> String {
@@ -68,7 +63,7 @@ fn get_root_gap_lines(node: Node, source: &str) -> String {
         prev_node,
     ) {
         (true, Some(prev)) => {
-            if prev.kind() == COMMENT_KIND {
+            if prev.kind() == "comment" {
                 &get_gap_lines(node, source)
             } else {
                 "\n\n"
@@ -100,16 +95,24 @@ fn strip_end_lines(source: &mut String) {
     source.push('\n');
 }
 
-fn format_any_node(node: Node, source: &str, indent_level: usize) -> Result<String, Error> {
+fn format_any_node(node: Node, source: &str, indent_level: usize) -> String {
     let indent = get_indent(indent_level);
-    let text = &source[node.byte_range()];
+    let text = get_node_text(node, source);
     let mut output = String::new();
 
     output.push_str(&indent);
     output.push_str(text.trim());
     output.push('\n');
 
-    Ok(output)
+    output
+}
+
+fn get_node_text<'a>(node: Node<'a>, source: &'a str) -> &'a str {
+    &source[node.byte_range()]
+}
+
+fn is_leaf_node(node: Node) -> bool {
+    node.child_count() == 0
 }
 
 fn get_indent(indent_level: usize) -> String {
