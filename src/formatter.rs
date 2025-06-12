@@ -47,6 +47,8 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> String {
         "setget" => format_setget_node(node, source, indent_level),
         "parameters" => format_parameters_node(node, source, indent_level),
         "default_parameter" => format_default_parameter_node(node, source, indent_level),
+        "annotations" => format_annotations_node(node, source, indent_level),
+        "annotation" => format_annotation_node(node, source, indent_level),
         _ => get_node_text(node, source).to_string(),
     }
 }
@@ -202,6 +204,40 @@ fn format_default_parameter_node(node: Node, source: &str, indent_level: usize) 
         let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "identifier" => (text, ""),
+            _ => (text, ""),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+
+    output
+}
+
+fn format_annotations_node(node: Node, source: &str, indent_level: usize) -> String {
+    let mut output = String::new();
+
+    for (i, child) in node.children(&mut node.walk()).enumerate() {
+        let text = &format_node(child, source, indent_level);
+        let (text, space): (&str, &str) = match child.kind() {
+            _ if i == 0 => (text, ""),
+            "annotation" => (text, " "),
+            _ => (text, ""),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+
+    output
+}
+
+fn format_annotation_node(node: Node, source: &str, indent_level: usize) -> String {
+    let mut output = String::new();
+
+    for child in node.children(&mut node.walk()) {
+        let text = &format_node(child, source, indent_level);
+        let (text, space): (&str, &str) = match child.kind() {
+            "@" => (text, ""),
+            "annotation" => (text, " "),
             _ => (text, ""),
         };
         output.push_str(space);
