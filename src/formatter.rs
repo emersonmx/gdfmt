@@ -80,11 +80,12 @@ fn format_function_definition_node(node: Node, source: &str, indent_level: usize
     output.push_str(&gap_lines);
 
     for (i, child) in node.children(&mut node.walk()).enumerate() {
-        let text = &format_node(child, source, indent_level + 1); // TODO: Try format_node
+        let text = &format_node(child, source, indent_level + 1);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
             "parameters" => (&format_node(child, source, indent_level), ""),
             ":" => (text, ""),
+            "body" => (&format_node(child, source, indent_level), ""),
             _ => (text, " "),
         };
         output.push_str(space);
