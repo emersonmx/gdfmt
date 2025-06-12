@@ -81,7 +81,7 @@ fn format_function_definition_node(node: Node, source: &str, _indent_level: usiz
         output.push_str(&gap_lines);
     }
 
-    let text = get_node_text(node, source);
+    let text = get_node_text(node, source); // TODO: Try format_node
     output.push_str(text);
     output.push('\n');
 
@@ -94,7 +94,7 @@ fn format_variable_statement_node(node: Node, source: &str, indent_level: usize)
 
     output.push_str(&gap_lines);
     for (i, child) in node.children(&mut node.walk()).enumerate() {
-        let text = get_node_text(child, source);
+        let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
             "setget" => (&format_node(child, source, indent_level + 1), ""),
@@ -140,7 +140,7 @@ fn format_setget_node(node: Node, source: &str, indent_level: usize) -> String {
         let text = match child.kind() {
             _ if i == 0 => "",
             "=" => " = ",
-            _ => get_node_text(child, source),
+            _ => &format_node(child, source, indent_level),
         };
 
         output.push_str(text);
@@ -151,7 +151,7 @@ fn format_setget_node(node: Node, source: &str, indent_level: usize) -> String {
 
 fn formatted_text(node: Node, source: &str, indent_level: usize) -> String {
     let indent = get_indent(indent_level);
-    let text = get_node_text(node, source);
+    let text = get_node_text(node, source); // TODO: try format_node
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
 
