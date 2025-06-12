@@ -49,6 +49,7 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> String {
         "default_parameter" => format_default_parameter_node(node, source, indent_level),
         "annotations" => format_annotations_node(node, source, indent_level),
         "annotation" => format_annotation_node(node, source, indent_level),
+        "array" => format_array_node(node, source, indent_level),
         _ => get_node_text(node, source).to_string(),
     }
 }
@@ -238,6 +239,23 @@ fn format_annotation_node(node: Node, source: &str, indent_level: usize) -> Stri
             "@" => (text, ""),
             "annotation" => (text, " "),
             _ => (text, ""),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+
+    output
+}
+
+fn format_array_node(node: Node, source: &str, indent_level: usize) -> String {
+    let mut output = String::new();
+
+    for child in node.children(&mut node.walk()) {
+        let text = &format_node(child, source, indent_level);
+        let (text, space): (&str, &str) = match child.kind() {
+            "[" => (text, ""),
+            "," => (text, ""),
+            _ => (text, " "),
         };
         output.push_str(space);
         output.push_str(text);
