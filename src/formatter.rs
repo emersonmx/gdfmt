@@ -51,6 +51,7 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> String {
         "class_name_statement" | "extends_statement" | "comment" | "signal_statement" => {
             formatted_text(node, source, indent_level)
         }
+        "body" => format_body_node(node, source, indent_level),
         // without trailing whitespace
         "setget" => format_setget_node(node, source, indent_level),
         "parameters" => format_parameters_node(node, source, indent_level),
@@ -81,12 +82,12 @@ fn format_function_definition_node(node: Node, source: &str, indent_level: usize
     output.push_str(&gap_lines);
 
     for (i, child) in node.children(&mut node.walk()).enumerate() {
-        let text = &format_node(child, source, indent_level + 1);
+        let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
             "parameters" => (text, ""),
             ":" => (text, ""),
-            "body" => (text, ""),
+            "body" => (&format_node(child, source, indent_level + 1), ""),
             _ => (text, " "),
         };
         output.push_str(space);
@@ -109,11 +110,11 @@ fn format_class_definition_node(node: Node, source: &str, indent_level: usize) -
     output.push_str(&gap_lines);
 
     for (i, child) in node.children(&mut node.walk()).enumerate() {
-        let text = &format_node(child, source, indent_level + 1);
+        let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
             ":" => (text, ""),
-            "body" => (text, ""),
+            "body" => (&format_node(child, source, indent_level + 1), ""),
             _ => (text, " "),
         };
         output.push_str(space);
@@ -170,17 +171,29 @@ fn format_parameters_node(node: Node, source: &str, indent_level: usize) -> Stri
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let prev_sibling = child.prev_sibling().map(|ps| ps.kind());
+        let prev_kind = child.prev_sibling().map(|ps| ps.kind());
         let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "(" | ")" | "=" | "," => (text, ""),
-            "identifier" if prev_sibling == Some("(") => (text, ""),
+            "identifier" | "default_parameter" if prev_kind == Some("(") => (text, ""),
             "identifier" => (text, " "),
             _ => (text, " "),
         };
         output.push_str(space);
         output.push_str(text);
     }
+
+    output
+}
+
+fn format_body_node(node: Node, source: &str, indent_level: usize) -> String {
+    let indent = get_indent(indent_level);
+    let text = get_node_text(node, source).trim();
+    let mut output = String::new();
+
+    output.push('\n');
+    output.push_str(&indent);
+    output.push_str(text);
 
     output
 }
@@ -272,7 +285,11 @@ mod tests {
     #[case("var a = 0\t", "var a = 0\n")]
     #[case("var a = 0 \t", "var a = 0\n")]
     #[case("var a = 0  \n \t", "var a = 0\n")]
-    fn trim_trailing_spaces(#[case] source_input: &str, #[case] expected_output: &str) {
+    #[case("func     a  (   b    ,    c)    :    pass", "func a(b, c):\n\tpass\n")]
+    #[case("func a( b = {} ,  c  =  42 ):pass", "func a(b={}, c=42):\n\tpass\n")]
+    #[case("func a( b ,  c  =  42 ):pass", "func a(b, c=42):\n\tpass\n")]
+    #[case("class     MyClass    :    pass", "class MyClass:\n\tpass\n")]
+    fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
