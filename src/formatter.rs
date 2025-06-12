@@ -135,8 +135,7 @@ fn format_variable_statement_node(node: Node, source: &str, indent_level: usize)
         let text = &format_node(child, source, indent_level + 1);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
-            "setget" => (text, ""),
-            ":" => (text, ""),
+            ":" | "setget" => (text, ""),
             _ => (text, " "),
         };
         output.push_str(space);
