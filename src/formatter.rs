@@ -84,9 +84,9 @@ fn format_function_definition_node(node: Node, source: &str, indent_level: usize
         let text = &format_node(child, source, indent_level + 1);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
-            "parameters" => (&format_node(child, source, indent_level), ""),
+            "parameters" => (text, ""),
             ":" => (text, ""),
-            "body" => (&format_node(child, source, indent_level), ""),
+            "body" => (text, ""),
             _ => (text, " "),
         };
         output.push_str(space);
@@ -113,7 +113,7 @@ fn format_class_definition_node(node: Node, source: &str, indent_level: usize) -
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
             ":" => (text, ""),
-            "body" => (&format_node(child, source, indent_level), ""),
+            "body" => (text, ""),
             _ => (text, " "),
         };
         output.push_str(space);
@@ -131,10 +131,10 @@ fn format_variable_statement_node(node: Node, source: &str, indent_level: usize)
 
     output.push_str(&gap_lines);
     for (i, child) in node.children(&mut node.walk()).enumerate() {
-        let text = &format_node(child, source, indent_level);
+        let text = &format_node(child, source, indent_level + 1);
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
-            "setget" => (&format_node(child, source, indent_level + 1), ""),
+            "setget" => (text, ""),
             ":" => (text, ""),
             _ => (text, " "),
         };
