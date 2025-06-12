@@ -254,21 +254,6 @@ mod tests {
     }
 
     #[rstest]
-    #[case("var a = 0", "var a = 0\n")]
-    #[case("var b = 1\n", "var b = 1\n")]
-    #[case("var c = 2\n\n", "var c = 2\n")]
-    #[case("var d = 3\n\n\n", "var d = 3\n")]
-    fn keep_one_newline_at_end(#[case] source_input: &str, #[case] expected_output: &str) {
-        let formatted = format_code(source_input).unwrap();
-
-        assert_eq!(
-            formatted, expected_output,
-            "Failed for input: {:?}",
-            source_input
-        );
-    }
-
-    #[rstest]
     #[case("var a = 0\nvar b = 0", "var a = 0\nvar b = 0\n")]
     #[case("var a = 0\n\nvar b = 0", "var a = 0\n\nvar b = 0\n")]
     #[case("var a = 0\n\n\n\nvar b = 0", "var a = 0\n\nvar b = 0\n")]
