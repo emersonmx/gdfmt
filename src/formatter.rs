@@ -71,17 +71,29 @@ fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
 fn format_function_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
     let mut output = String::new();
     let parent_kind = node.parent().map(|n| n.kind());
-
-    if let Some(kind) = parent_kind {
-        let gap_lines = if kind == "source" {
-            get_root_gap_lines(node, source)
-        } else {
-            get_gap_lines(node, source)
-        };
-        output.push_str(&gap_lines);
-    }
-
     let text = get_node_text(node, source); // TODO: Try format_node
+    let gap_lines = match parent_kind {
+        Some("source") => get_root_gap_lines(node, source),
+        _ => get_gap_lines(node, source),
+    };
+
+    output.push_str(&gap_lines);
+    output.push_str(text);
+    output.push('\n');
+
+    output
+}
+
+fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
+    let mut output = String::new();
+    let parent_kind = node.parent().map(|n| n.kind());
+    let text = get_node_text(node, source);
+    let gap_lines = match parent_kind {
+        Some("source") => get_root_gap_lines(node, source),
+        _ => get_gap_lines(node, source),
+    };
+
+    output.push_str(&gap_lines);
     output.push_str(text);
     output.push('\n');
 
@@ -104,26 +116,6 @@ fn format_variable_statement_node(node: Node, source: &str, indent_level: usize)
         output.push_str(space);
         output.push_str(text);
     }
-    output.push('\n');
-
-    output
-}
-
-fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
-    let mut output = String::new();
-    let parent_kind = node.parent().map(|n| n.kind());
-
-    if let Some(kind) = parent_kind {
-        let gap_lines = if kind == "source" {
-            get_root_gap_lines(node, source)
-        } else {
-            get_gap_lines(node, source)
-        };
-        output.push_str(&gap_lines);
-    }
-
-    let text = get_node_text(node, source);
-    output.push_str(text);
     output.push('\n');
 
     output
