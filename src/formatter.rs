@@ -44,13 +44,17 @@ fn format_node(node: Node, source: &str, indent_level: usize) -> String {
         // with trailing line
         "source" => format_source_node(node, source, indent_level),
         "function_definition" | "constructor_definition" => {
-            format_function_definition_node(node, source, indent_level)
+            format_function_node(node, source, indent_level)
         }
         "class_definition" => format_class_definition_node(node, source, indent_level),
         "variable_statement" => format_variable_statement_node(node, source, indent_level),
-        "class_name_statement" | "extends_statement" | "comment" | "signal_statement" => {
-            formatted_text(node, source, indent_level)
-        }
+        "class_name_statement"
+        | "extends_statement"
+        | "comment"
+        | "signal_statement"
+        | "expression_statement"
+        | "pass_statement"
+        | "if_statement" => formatted_text(node, source, indent_level),
         "body" => format_body_node(node, source, indent_level),
         // without trailing whitespace
         "setget" => format_setget_node(node, source, indent_level),
@@ -71,7 +75,8 @@ fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
     output
 }
 
-fn format_function_definition_node(node: Node, source: &str, indent_level: usize) -> String {
+fn format_function_node(node: Node, source: &str, indent_level: usize) -> String {
+    let indent = get_indent(indent_level);
     let parent_kind = node.parent().map(|n| n.kind());
     let gap_lines = match parent_kind {
         Some("source") => get_root_gap_lines(node, source),
@@ -80,6 +85,7 @@ fn format_function_definition_node(node: Node, source: &str, indent_level: usize
     let mut output = String::new();
 
     output.push_str(&gap_lines);
+    output.push_str(&indent);
 
     for (i, child) in node.children(&mut node.walk()).enumerate() {
         let text = &format_node(child, source, indent_level);
@@ -87,14 +93,15 @@ fn format_function_definition_node(node: Node, source: &str, indent_level: usize
             _ if i == 0 => (text, ""),
             "parameters" => (text, ""),
             ":" => (text, ""),
-            "body" => (&format_node(child, source, indent_level + 1), ""),
+            "body" => (
+                &format!("\n{}", &format_node(child, source, indent_level + 1)),
+                "",
+            ),
             _ => (text, " "),
         };
         output.push_str(space);
         output.push_str(text);
     }
-
-    output.push('\n');
 
     output
 }
@@ -114,23 +121,27 @@ fn format_class_definition_node(node: Node, source: &str, indent_level: usize) -
         let (text, space): (&str, &str) = match child.kind() {
             _ if i == 0 => (text, ""),
             ":" => (text, ""),
-            "body" => (&format_node(child, source, indent_level + 1), ""),
+            "body" => (
+                &format!("\n{}", &format_node(child, source, indent_level + 1)),
+                "",
+            ),
             _ => (text, " "),
         };
         output.push_str(space);
         output.push_str(text);
     }
 
-    output.push('\n');
-
     output
 }
 
 fn format_variable_statement_node(node: Node, source: &str, indent_level: usize) -> String {
+    let indent = get_indent(indent_level);
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
 
     output.push_str(&gap_lines);
+    output.push_str(&indent);
+
     for (i, child) in node.children(&mut node.walk()).enumerate() {
         let text = &format_node(child, source, indent_level + 1);
         let (text, space): (&str, &str) = match child.kind() {
@@ -187,13 +198,12 @@ fn format_parameters_node(node: Node, source: &str, indent_level: usize) -> Stri
 }
 
 fn format_body_node(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = get_indent(indent_level);
-    let text = get_node_text(node, source).trim();
     let mut output = String::new();
 
-    output.push('\n');
-    output.push_str(&indent);
-    output.push_str(text);
+    for child in node.children(&mut node.walk()) {
+        let text = &format_node(child, source, indent_level);
+        output.push_str(text);
+    }
 
     output
 }
@@ -289,6 +299,10 @@ mod tests {
     #[case("func a( b = {} ,  c  =  42 ):pass", "func a(b={}, c=42):\n\tpass\n")]
     #[case("func a( b ,  c  =  42 ):pass", "func a(b, c=42):\n\tpass\n")]
     #[case("class     MyClass    :    pass", "class MyClass:\n\tpass\n")]
+    #[case(
+        "class MyClass:\n\tfunc a( b = 24 ,  c  =  42 ):pass",
+        "class MyClass:\n\tfunc a(b=24, c=42):\n\t\tpass\n"
+    )]
     fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
