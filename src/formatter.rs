@@ -253,9 +253,13 @@ fn format_array_node(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
+        let next_kind = child.next_sibling().map(|ns| ns.kind());
+        let prev_kind = child.prev_sibling().map(|ps| ps.kind());
         let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "[" => (text, ""),
+            "]" if prev_kind == Some("[") => (text, ""),
+            "," if next_kind == Some("]") => ("", ""),
             "," => (text, ""),
             _ => (text, " "),
         };
@@ -270,12 +274,14 @@ fn format_dictionary_node(node: Node, source: &str, indent_level: usize) -> Stri
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
+        let next_kind = child.next_sibling().map(|ns| ns.kind());
         let prev_kind = child.prev_sibling().map(|ps| ps.kind());
         let text = &format_node(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "{" => (text, ""),
             "}" if prev_kind == Some("{") => (text, ""),
             "}" => (text, " "),
+            "," if next_kind == Some("}") => ("", ""),
             "," => (text, ""),
             _ => (text, " "),
         };
@@ -413,6 +419,51 @@ mod tests {
         "func a():\n\tpass\n\n\nclass B:\n\tpass\n"
     )]
     fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(
+            formatted, expected_output,
+            "Failed for input: {:?}",
+            source_input
+        );
+    }
+
+    #[rstest]
+    #[case("var a = [ 1, 2, 3 ]", "var a = [ 1, 2, 3 ]\n")]
+    #[case("var a=[1,2,3]", "var a = [ 1, 2, 3 ]\n")]
+    #[case("var  a  =  [  1  ,  2  ,  3  ]", "var a = [ 1, 2, 3 ]\n")]
+    #[case("var a=[]", "var a = []\n")]
+    #[case("var a=[1]", "var a = [ 1 ]\n")]
+    #[case("var a=[ 1 ]", "var a = [ 1 ]\n")]
+    #[case("var a=[ 1, ]", "var a = [ 1 ]\n")]
+    fn should_format_arrays(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(
+            formatted, expected_output,
+            "Failed for input: {:?}",
+            source_input
+        );
+    }
+
+    #[rstest]
+    #[case(
+        r#"var a = { "one": 1, "two": 2, "three": 3 }"#,
+        "var a = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
+    )]
+    #[case(
+        r#"var a={"one":1,"two":2,"three":3}"#,
+        "var a = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
+    )]
+    #[case(
+        r#"var  a  =  {  "one"  :  1  ,  "two"  :  2  ,  "three"  :  3  }"#,
+        "var a = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
+    )]
+    #[case("var a={}", "var a = {}\n")]
+    #[case(r#"var a={"one":1}"#, "var a = { \"one\": 1 }\n")]
+    #[case(r#"var a={ "one":1 }"#, "var a = { \"one\": 1 }\n")]
+    #[case(r#"var a={ "one":1, }"#, "var a = { \"one\": 1 }\n")]
+    fn should_format_dicts(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(
