@@ -41,16 +41,18 @@ pub fn format_code(source: &str) -> Result<String, Error> {
 
 fn format_node(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
+        // with trailing line
         "source" => format_source_node(node, source, indent_level),
         "function_definition" | "constructor_definition" => {
             format_function_definition_node(node, source, indent_level)
         }
         "class_definition" => format_class_definition_node(node, source, indent_level),
-        "variable_statement"
-        | "class_name_statement"
-        | "extends_statement"
-        | "comment"
-        | "signal_statement" => formatted_text(node, source, indent_level),
+        "variable_statement" => format_variable_statement_node(node, source, indent_level),
+        "class_name_statement" | "extends_statement" | "comment" | "signal_statement" => {
+            formatted_text(node, source, indent_level)
+        }
+        // without trailing whitespace
+        "setget" => format_setget_node(node, source, indent_level),
         _ => get_node_text(node, source).to_string(),
     }
 }
@@ -86,6 +88,27 @@ fn format_function_definition_node(node: Node, source: &str, _indent_level: usiz
     output
 }
 
+fn format_variable_statement_node(node: Node, source: &str, indent_level: usize) -> String {
+    let gap_lines = get_gap_lines(node, source);
+    let mut output = String::new();
+
+    output.push_str(&gap_lines);
+    for (i, child) in node.children(&mut node.walk()).enumerate() {
+        let text = get_node_text(child, source);
+        let (text, space): (&str, &str) = match child.kind() {
+            _ if i == 0 => (text, ""),
+            "setget" => (&format_node(child, source, indent_level + 1), ""),
+            ":" => (text, ""),
+            _ => (text, " "),
+        };
+        output.push_str(space);
+        output.push_str(text);
+    }
+    output.push('\n');
+
+    output
+}
+
 fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
     let mut output = String::new();
     let parent_kind = node.parent().map(|n| n.kind());
@@ -102,6 +125,26 @@ fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) 
     let text = get_node_text(node, source);
     output.push_str(text);
     output.push('\n');
+
+    output
+}
+
+fn format_setget_node(node: Node, source: &str, indent_level: usize) -> String {
+    let indent = get_indent(indent_level);
+    let mut output = String::new();
+
+    output.push(':');
+    output.push('\n');
+    output.push_str(&indent);
+    for (i, child) in node.children(&mut node.walk()).enumerate() {
+        let text = match child.kind() {
+            _ if i == 0 => "",
+            "=" => " = ",
+            _ => get_node_text(child, source),
+        };
+
+        output.push_str(text);
+    }
 
     output
 }
