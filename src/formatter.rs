@@ -32,28 +32,96 @@ pub fn format_code(source: &str) -> Result<String, Error> {
         ));
     }
 
+    println!("{}", "-".repeat(80));
+    print!("{}", crate::debug::print_tree(root_node, source, 0));
+    println!("{}", "-".repeat(80));
+
     Ok(format_node(root_node, source, 0))
 }
 
 fn format_node(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
         "source" => format_source_node(node, source, indent_level),
-        _ => format_any_node(node, source, indent_level),
+        "function_definition" | "constructor_definition" => {
+            format_function_definition_node(node, source, indent_level)
+        }
+        "class_definition" => format_class_definition_node(node, source, indent_level),
+        "variable_statement"
+        | "class_name_statement"
+        | "extends_statement"
+        | "comment"
+        | "signal_statement" => formatted_text(node, source, indent_level),
+        _ => get_node_text(node, source).to_string(),
     }
 }
 
 fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
     for child in node.children(&mut node.walk()) {
-        let gap_lines = &get_root_gap_lines(child, source);
-        output.push_str(gap_lines);
-
         let child_output = format_node(child, source, indent_level);
         output.push_str(&child_output);
     }
 
     strip_end_lines(&mut output);
     output
+}
+
+fn format_function_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
+    let mut output = String::new();
+    let parent_kind = node.parent().map(|n| n.kind());
+
+    if let Some(kind) = parent_kind {
+        let gap_lines = if kind == "source" {
+            get_root_gap_lines(node, source)
+        } else {
+            get_gap_lines(node, source)
+        };
+        output.push_str(&gap_lines);
+    }
+
+    let text = get_node_text(node, source);
+    output.push_str(text);
+    output.push('\n');
+
+    output
+}
+
+fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
+    let mut output = String::new();
+    let parent_kind = node.parent().map(|n| n.kind());
+
+    if let Some(kind) = parent_kind {
+        let gap_lines = if kind == "source" {
+            get_root_gap_lines(node, source)
+        } else {
+            get_gap_lines(node, source)
+        };
+        output.push_str(&gap_lines);
+    }
+
+    let text = get_node_text(node, source);
+    output.push_str(text);
+    output.push('\n');
+
+    output
+}
+
+fn formatted_text(node: Node, source: &str, indent_level: usize) -> String {
+    let indent = get_indent(indent_level);
+    let text = get_node_text(node, source);
+    let gap_lines = get_gap_lines(node, source);
+    let mut output = String::new();
+
+    output.push_str(&gap_lines);
+    output.push_str(&indent);
+    output.push_str(text.trim());
+    output.push('\n');
+
+    output
+}
+
+fn get_node_text<'a>(node: Node<'a>, source: &'a str) -> &'a str {
+    &source[node.byte_range()]
 }
 
 fn get_root_gap_lines(node: Node, source: &str) -> String {
@@ -93,26 +161,6 @@ fn strip_end_lines(source: &mut String) {
         source.pop();
     }
     source.push('\n');
-}
-
-fn format_any_node(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = get_indent(indent_level);
-    let text = get_node_text(node, source);
-    let mut output = String::new();
-
-    output.push_str(&indent);
-    output.push_str(text.trim());
-    output.push('\n');
-
-    output
-}
-
-fn get_node_text<'a>(node: Node<'a>, source: &'a str) -> &'a str {
-    &source[node.byte_range()]
-}
-
-fn is_leaf_node(node: Node) -> bool {
-    node.child_count() == 0
 }
 
 fn get_indent(indent_level: usize) -> String {
