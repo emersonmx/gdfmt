@@ -1,22 +1,9 @@
-use thiserror::Error;
-use tree_sitter::LanguageError;
+use crate::error::Error;
+use crate::node::{get_gap_lines, get_node_text, get_root_gap_lines};
+use crate::text::{force_end_line, make_indent};
 use tree_sitter::Node;
 use tree_sitter::Parser;
 use tree_sitter_gdscript::LANGUAGE as gdscript_language;
-
-const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
-    "function_definition",
-    "class_definition",
-    "constructor_definition",
-];
-
-#[derive(Error, Debug)]
-pub enum Error {
-    #[error("unable to load language")]
-    UnableToLoadLanguage(#[from] LanguageError),
-    #[error("unable to parse: {0}")]
-    UnableToParse(String),
-}
 
 pub fn format_code(source: &str) -> Result<String, Error> {
     let mut parser = Parser::new();
@@ -71,12 +58,12 @@ fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
         output.push_str(&child_output);
     }
 
-    strip_end_lines(&mut output);
+    force_end_line(&mut output);
     output
 }
 
 fn format_function_node(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = get_indent(indent_level);
+    let indent = make_indent(indent_level);
     let parent_kind = node.parent().map(|n| n.kind());
     let gap_lines = match parent_kind {
         Some("source") => get_root_gap_lines(node, source),
@@ -135,7 +122,7 @@ fn format_class_definition_node(node: Node, source: &str, indent_level: usize) -
 }
 
 fn format_variable_statement_node(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = get_indent(indent_level);
+    let indent = make_indent(indent_level);
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
 
@@ -159,7 +146,7 @@ fn format_variable_statement_node(node: Node, source: &str, indent_level: usize)
 }
 
 fn format_setget_node(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = get_indent(indent_level);
+    let indent = make_indent(indent_level);
     let mut output = String::new();
 
     output.push(':');
@@ -225,7 +212,7 @@ fn format_default_parameter_node(node: Node, source: &str, indent_level: usize) 
 }
 
 fn formatted_text(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = get_indent(indent_level);
+    let indent = make_indent(indent_level);
     let text = get_node_text(node, source); // TODO: try format_node
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
@@ -236,53 +223,6 @@ fn formatted_text(node: Node, source: &str, indent_level: usize) -> String {
     output.push('\n');
 
     output
-}
-
-fn get_node_text<'a>(node: Node<'a>, source: &'a str) -> &'a str {
-    &source[node.byte_range()]
-}
-
-fn get_root_gap_lines(node: Node, source: &str) -> String {
-    let prev_node = node.prev_sibling();
-    let lines = match (
-        KINDS_WITH_TWO_LINES_BETWEEN.contains(&node.kind()),
-        prev_node,
-    ) {
-        (true, Some(prev)) => {
-            if prev.kind() == "comment" {
-                &get_gap_lines(node, source)
-            } else {
-                "\n\n"
-            }
-        }
-        _ => &get_gap_lines(node, source),
-    };
-    lines.to_string()
-}
-
-fn get_gap_lines(node: Node, source: &str) -> String {
-    let previous = node.prev_sibling();
-    let gap_start_byte = if let Some(prev_node) = previous {
-        prev_node.end_byte()
-    } else {
-        node.start_byte()
-    };
-    let gap_end_byte = node.start_byte();
-    let gap_str = &source[gap_start_byte..gap_end_byte];
-    let gap_lines: String = gap_str.chars().filter(|c| *c == '\n').collect();
-    let lines = if gap_lines.len() > 1 { "\n" } else { "" };
-    lines.to_string()
-}
-
-fn strip_end_lines(source: &mut String) {
-    while source.ends_with("\n") {
-        source.pop();
-    }
-    source.push('\n');
-}
-
-fn get_indent(indent_level: usize) -> String {
-    "\t".repeat(indent_level)
 }
 
 #[cfg(test)]
