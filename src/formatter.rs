@@ -69,13 +69,13 @@ fn format_source_node(node: Node, source: &str, indent_level: usize) -> String {
 }
 
 fn format_function_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
-    let mut output = String::new();
-    let parent_kind = node.parent().map(|n| n.kind());
     let text = get_node_text(node, source); // TODO: Try format_node
+    let parent_kind = node.parent().map(|n| n.kind());
     let gap_lines = match parent_kind {
         Some("source") => get_root_gap_lines(node, source),
         _ => get_gap_lines(node, source),
     };
+    let mut output = String::new();
 
     output.push_str(&gap_lines);
     output.push_str(text);
@@ -85,13 +85,13 @@ fn format_function_definition_node(node: Node, source: &str, _indent_level: usiz
 }
 
 fn format_class_definition_node(node: Node, source: &str, _indent_level: usize) -> String {
-    let mut output = String::new();
-    let parent_kind = node.parent().map(|n| n.kind());
     let text = get_node_text(node, source);
+    let parent_kind = node.parent().map(|n| n.kind());
     let gap_lines = match parent_kind {
         Some("source") => get_root_gap_lines(node, source),
         _ => get_gap_lines(node, source),
     };
+    let mut output = String::new();
 
     output.push_str(&gap_lines);
     output.push_str(text);
