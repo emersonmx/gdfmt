@@ -71,4 +71,13 @@ mod tests {
 
         assert_eq!(formatted, expected_output);
     }
+
+    #[rstest]
+    #[case("print(42)", "print(42)\n")]
+    #[case("print( 42 )", "print( 42 )\n")]
+    fn keep_text(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(formatted, expected_output);
+    }
 }
