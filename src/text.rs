@@ -26,7 +26,7 @@ mod tests {
         let mut input = input.to_string();
         force_end_line(&mut input);
 
-        assert_eq!(input, output, "Failed for input: {:?}", input);
+        assert_eq!(input, output);
     }
 
     #[rstest]
@@ -39,6 +39,6 @@ mod tests {
 
         indent_by(&mut buf, input);
 
-        assert_eq!(buf, output, "Failed for input: {:?}", input);
+        assert_eq!(buf, output);
     }
 }

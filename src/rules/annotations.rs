@@ -56,10 +56,6 @@ mod tests {
     fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
-        assert_eq!(
-            formatted, expected_output,
-            "Failed for input: {:?}",
-            source_input
-        );
+        assert_eq!(formatted, expected_output);
     }
 }
