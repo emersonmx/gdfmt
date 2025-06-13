@@ -30,7 +30,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         | "signal_statement"
         | "expression_statement"
         | "pass_statement"
-        | "if_statement" => apply_trailing_line_rules(node, source, indent_level),
+        | "if_statement" => apply_keep_line_rules(node, source, indent_level),
         "body" => body::apply(node, source, indent_level),
         // without trailing whitespace
         "setget" => setget::apply(node, source, indent_level),
@@ -43,7 +43,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     }
 }
 
-fn apply_trailing_line_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_keep_line_rules(node: Node, source: &str, indent_level: usize) -> String {
     let text = get_node_text(node, source); // TODO: try apply
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
@@ -54,4 +54,21 @@ fn apply_trailing_line_rules(node: Node, source: &str, indent_level: usize) -> S
     output.push('\n');
 
     output
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::format_code;
+    use rstest::*;
+
+    #[rstest]
+    #[case("# comment\n# comment", "# comment\n# comment\n")]
+    #[case("# comment\n\n# comment", "# comment\n\n# comment\n")]
+    #[case("# comment\n\n\n# comment", "# comment\n\n# comment\n")]
+    #[case("# comment\n  \n  \n# comment", "# comment\n\n# comment\n")]
+    fn keep_line(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(formatted, expected_output);
+    }
 }
