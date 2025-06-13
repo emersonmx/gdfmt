@@ -1,12 +1,14 @@
-pub fn force_end_line(text: &mut String) {
-    while text.ends_with("\n") {
-        text.pop();
+pub fn force_end_line(buffer: &mut String) {
+    while buffer.ends_with("\n") {
+        buffer.pop();
     }
-    text.push('\n');
+    buffer.push('\n');
 }
 
-pub fn make_indent(indent_level: usize) -> String {
-    "\t".repeat(indent_level)
+pub fn indent_by(buffer: &mut String, indent_level: usize) {
+    for _ in 0..indent_level {
+        buffer.push('\t');
+    }
 }
 
 #[cfg(test)]
@@ -33,8 +35,10 @@ mod tests {
     #[case(2, "\t\t")]
     #[case(3, "\t\t\t")]
     fn make_indent_by_level(#[case] input: usize, #[case] output: &str) {
-        let indent = make_indent(input);
+        let mut buf = String::new();
 
-        assert_eq!(indent, output, "Failed for input: {:?}", input);
+        indent_by(&mut buf, input);
+
+        assert_eq!(buf, output, "Failed for input: {:?}", input);
     }
 }

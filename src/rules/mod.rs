@@ -11,7 +11,7 @@ mod setget;
 mod source;
 mod variable;
 
-use crate::text::make_indent;
+use crate::text::indent_by;
 use node::{get_gap_lines, get_node_text};
 use tree_sitter::Node;
 
@@ -44,13 +44,12 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
 }
 
 fn apply_trailing_line_rules(node: Node, source: &str, indent_level: usize) -> String {
-    let indent = make_indent(indent_level);
     let text = get_node_text(node, source); // TODO: try apply
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
 
     output.push_str(&gap_lines);
-    output.push_str(&indent);
+    indent_by(&mut output, indent_level);
     output.push_str(text.trim());
     output.push('\n');
 
