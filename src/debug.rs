@@ -1,7 +1,7 @@
 use tree_sitter::Node;
 
 #[allow(dead_code)]
-pub fn print_tree(node: Node, source: &str, indent_level: usize) -> String {
+pub fn node_to_string(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
     let indent = "    ".repeat(indent_level);
     let text = &source[node.byte_range()];
@@ -17,7 +17,7 @@ pub fn print_tree(node: Node, source: &str, indent_level: usize) -> String {
     output.push('\n');
 
     for child in node.children(&mut node.walk()) {
-        let child_output = print_tree(child, source, indent_level + 1);
+        let child_output = node_to_string(child, source, indent_level + 1);
         output.push_str(&child_output);
     }
 
