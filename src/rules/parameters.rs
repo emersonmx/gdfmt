@@ -42,3 +42,22 @@ fn apply_default_parameter_rules(node: Node, source: &str, indent_level: usize) 
 
     output
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::format_code;
+    use rstest::*;
+
+    #[rstest]
+    #[case("func a(): pass", "func a():\n\tpass\n")]
+    #[case("func a(p1): pass", "func a(p1):\n\tpass\n")]
+    #[case("func a(p1,p2): pass", "func a(p1, p2):\n\tpass\n")]
+    #[case("func a(p1,p2 = 42): pass", "func a(p1, p2=42):\n\tpass\n")]
+    #[case("func a(p1 = 24,p2): pass", "func a(p1=24, p2):\n\tpass\n")]
+    #[case("func a(p1 = 24,p2 = 42): pass", "func a(p1=24, p2=42):\n\tpass\n")]
+    fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(formatted, expected_output);
+    }
+}
