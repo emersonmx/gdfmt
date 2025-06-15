@@ -16,3 +16,20 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
 
     output
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::format_code;
+    use rstest::*;
+
+    #[rstest]
+    #[case("var a = { 1: 1 }", "var a = { 1: 1 }\n")]
+    #[case("var a = {1:1}", "var a = { 1: 1 }\n")]
+    #[case("var a = {1:1,2:2}", "var a = { 1: 1, 2: 2 }\n")]
+    #[case("var a = {1:1,2:2,}", "var a = { 1: 1, 2: 2 }\n")]
+    fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+        let formatted = format_code(source_input).unwrap();
+
+        assert_eq!(formatted, expected_output);
+    }
+}
