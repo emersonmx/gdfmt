@@ -17,14 +17,15 @@ use tree_sitter::Node;
 
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
-        // with trailing line
+        // call inner nodes
         "source" => source::apply(node, source, indent_level),
+        "body" => body::apply(node, source, indent_level),
+        // with trailing line
+        "variable_statement" => variable::apply(node, source, indent_level),
         "function_definition" | "constructor_definition" => {
             function::apply(node, source, indent_level)
         }
         "class_definition" => class::apply(node, source, indent_level),
-        "variable_statement" => variable::apply(node, source, indent_level),
-        "body" => body::apply(node, source, indent_level),
         "class_name_statement"
         | "extends_statement"
         | "comment"
