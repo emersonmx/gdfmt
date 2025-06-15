@@ -4,15 +4,14 @@ mod body;
 mod class;
 mod dictionary;
 mod function;
-mod node;
 mod pair;
 mod parameters;
 mod setget;
 mod source;
 mod variable;
 
+use crate::node::{get_gap_lines, get_node_text};
 use crate::text::indent_by;
-use node::{get_gap_lines, get_node_text};
 use tree_sitter::Node;
 
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {

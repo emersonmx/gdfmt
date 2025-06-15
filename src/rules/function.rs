@@ -1,4 +1,4 @@
-use super::node::{get_gap_lines, get_root_gap_lines};
+use crate::node::{get_gap_lines, get_root_gap_lines};
 use crate::text::indent_by;
 use tree_sitter::Node;
 

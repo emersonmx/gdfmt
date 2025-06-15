@@ -1,4 +1,4 @@
-use super::node::{get_gap_lines, get_root_gap_lines};
+use crate::node::{get_gap_lines, get_root_gap_lines};
 use tree_sitter::Node;
 
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
