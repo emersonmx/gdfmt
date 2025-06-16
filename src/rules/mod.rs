@@ -33,7 +33,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         | "pass_statement"
         | "if_statement" => apply_fallback_rules(node, source, indent_level),
         // without trailing whitespace
-        "setget" => setget::apply(node, source, indent_level),
+        // "setget" => setget::apply(node, source, indent_level),
         "parameters" | "default_parameter" => parameters::apply(node, source, indent_level),
         "annotations" | "annotation" => annotations::apply(node, source, indent_level),
         "array" => array::apply(node, source, indent_level),
