@@ -10,8 +10,10 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         let (text, space): (&str, &str) = match child.kind() {
             "[" => (text, ""),
             "]" if prev_kind == Some("[") => (text, ""),
+            "]" => (text, ""),
             "," if next_kind == Some("]") => ("", ""),
             "," => (text, ""),
+            _ if prev_kind == Some("[") => (text, ""),
             _ => (text, " "),
         };
         output.push_str(space);
@@ -27,13 +29,13 @@ mod tests {
     use rstest::*;
 
     #[rstest]
-    #[case("var a = [ 1, 2, 3 ]", "var a = [ 1, 2, 3 ]\n")]
-    #[case("var a=[1,2,3]", "var a = [ 1, 2, 3 ]\n")]
-    #[case("var  a  =  [  1  ,  2  ,  3  ]", "var a = [ 1, 2, 3 ]\n")]
-    #[case("var a=[]", "var a = []\n")]
-    #[case("var a=[1]", "var a = [ 1 ]\n")]
-    #[case("var a=[ 1 ]", "var a = [ 1 ]\n")]
-    #[case("var a=[ 1, ]", "var a = [ 1 ]\n")]
+    #[case("var a = [ 1, 2, 3 ]", "var a = [1, 2, 3]\n")]
+    #[case("var b=[1,2,3]", "var b = [1, 2, 3]\n")]
+    #[case("var  c  =  [  1  ,  2  ,  3  ]", "var c = [1, 2, 3]\n")]
+    #[case("var d=[]", "var d = []\n")]
+    #[case("var e=[1]", "var e = [1]\n")]
+    #[case("var f=[ 1 ]", "var f = [1]\n")]
+    #[case("var g=[ 1, ]", "var g = [1]\n")]
     fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
