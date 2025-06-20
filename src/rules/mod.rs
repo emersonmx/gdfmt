@@ -5,6 +5,7 @@ mod class;
 mod dictionary;
 mod float;
 mod function;
+mod integer;
 mod pair;
 mod parameters;
 mod setget;
@@ -38,6 +39,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         // "setget" => setget::apply(node, source, indent_level),
         "parameters" | "default_parameter" => parameters::apply(node, source, indent_level),
         "annotations" | "annotation" => annotations::apply(node, source, indent_level),
+        "integer" => integer::apply(node, source, indent_level),
         "float" => float::apply(node, source, indent_level),
         "array" => array::apply(node, source, indent_level),
         "string" => string::apply(node, source, indent_level),
