@@ -50,11 +50,11 @@ mod tests {
 
     #[rstest]
     #[case("func a(): pass", "func a():\n\tpass\n")]
-    #[case("func a(p1): pass", "func a(p1):\n\tpass\n")]
-    #[case("func a(p1,p2): pass", "func a(p1, p2):\n\tpass\n")]
-    #[case("func a(p1,p2 = 42): pass", "func a(p1, p2=42):\n\tpass\n")]
-    #[case("func a(p1 = 24,p2): pass", "func a(p1=24, p2):\n\tpass\n")]
-    #[case("func a(p1 = 24,p2 = 42): pass", "func a(p1=24, p2=42):\n\tpass\n")]
+    #[case("func b(p1): pass", "func b(p1):\n\tpass\n")]
+    #[case("func c(p1,p2): pass", "func c(p1, p2):\n\tpass\n")]
+    #[case("func d(p1,p2 = 42): pass", "func d(p1, p2=42):\n\tpass\n")]
+    #[case("func e(p1 = 24,p2): pass", "func e(p1=24, p2):\n\tpass\n")]
+    #[case("func f(p1 = 24,p2 = 42): pass", "func f(p1=24, p2=42):\n\tpass\n")]
     fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 

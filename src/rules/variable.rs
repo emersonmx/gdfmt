@@ -31,9 +31,9 @@ mod tests {
 
     #[rstest]
     #[case("var   a   =  0  ", "var a = 0\n")]
-    #[case("var\ta\t=\t0\t", "var a = 0\n")]
-    #[case("var \ta \t= \t0 \t", "var a = 0\n")]
-    #[case("var a = 0 \n\t", "var a = 0\n")]
+    #[case("var\tb\t=\t0\t", "var b = 0\n")]
+    #[case("var \tc \t= \t0 \t", "var c = 0\n")]
+    #[case("var d = 0 \n\t", "var d = 0\n")]
     fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
@@ -42,8 +42,8 @@ mod tests {
 
     #[rstest]
     #[case("var a = 0\nvar b = 0", "var a = 0\nvar b = 0\n")]
-    #[case("var a = 0\n\nvar b = 0", "var a = 0\n\nvar b = 0\n")]
-    #[case("var a = 0\n\n\n\nvar b = 0", "var a = 0\n\nvar b = 0\n")]
+    #[case("var b = 0\n\nvar b = 0", "var b = 0\n\nvar b = 0\n")]
+    #[case("var c = 0\n\n\n\nvar b = 0", "var c = 0\n\nvar b = 0\n")]
     fn keep_one_empty_line_at_most(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 

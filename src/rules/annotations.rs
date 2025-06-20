@@ -49,10 +49,10 @@ mod tests {
 
     #[rstest]
     #[case("@export var a = 0", "@export var a = 0\n")]
-    #[case("@export @onready var a = 0", "@export @onready var a = 0\n")]
-    #[case("  @export  var a = 0", "@export var a = 0\n")]
-    #[case("  @onready  @export  var a = 0", "@onready @export var a = 0\n")]
-    #[case("  @  onready  @  export  var a = 0", "@onready @export var a = 0\n")]
+    #[case("@export @onready var b = 0", "@export @onready var b = 0\n")]
+    #[case("  @export  var c = 0", "@export var c = 0\n")]
+    #[case("  @onready  @export  var d = 0", "@onready @export var d = 0\n")]
+    #[case("  @  onready  @  export  var e = 0", "@onready @export var e = 0\n")]
     fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 

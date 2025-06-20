@@ -24,9 +24,9 @@ mod tests {
 
     #[rstest]
     #[case("var a = { 1: 1 }", "var a = { 1: 1 }\n")]
-    #[case("var a = {1:1}", "var a = { 1: 1 }\n")]
-    #[case("var a = {1:1,2:2}", "var a = { 1: 1, 2: 2 }\n")]
-    #[case("var a = {1:1,2:2,}", "var a = { 1: 1, 2: 2 }\n")]
+    #[case("var b = {1:1}", "var b = { 1: 1 }\n")]
+    #[case("var c = {1:1,2:2}", "var c = { 1: 1, 2: 2 }\n")]
+    #[case("var d = {1:1,2:2,}", "var d = { 1: 1, 2: 2 }\n")]
     fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 

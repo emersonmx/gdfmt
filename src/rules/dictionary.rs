@@ -33,17 +33,17 @@ mod tests {
         "var a = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
     )]
     #[case(
-        r#"var a={"one":1,"two":2,"three":3}"#,
-        "var a = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
+        r#"var b={"one":1,"two":2,"three":3}"#,
+        "var b = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
     )]
     #[case(
-        r#"var  a  =  {  "one"  :  1  ,  "two"  :  2  ,  "three"  :  3  }"#,
-        "var a = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
+        r#"var  c  =  {  "one"  :  1  ,  "two"  :  2  ,  "three"  :  3  }"#,
+        "var c = { \"one\": 1, \"two\": 2, \"three\": 3 }\n"
     )]
-    #[case("var a={}", "var a = {}\n")]
-    #[case(r#"var a={"one":1}"#, "var a = { \"one\": 1 }\n")]
-    #[case(r#"var a={ "one":1 }"#, "var a = { \"one\": 1 }\n")]
-    #[case(r#"var a={ "one":1, }"#, "var a = { \"one\": 1 }\n")]
+    #[case("var d={}", "var d = {}\n")]
+    #[case(r#"var e={"one":1}"#, "var e = { \"one\": 1 }\n")]
+    #[case(r#"var f={ "one":1 }"#, "var f = { \"one\": 1 }\n")]
+    #[case(r#"var g={ "one":1, }"#, "var g = { \"one\": 1 }\n")]
     fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
