@@ -23,12 +23,14 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         // call inner nodes
         "source" => source::apply(node, source, indent_level),
         "body" => body::apply(node, source, indent_level),
+
         // with trailing line
         "variable_statement" => variable::apply(node, source, indent_level),
         "function_definition" | "constructor_definition" => {
             function::apply(node, source, indent_level)
         }
         "class_definition" => class::apply(node, source, indent_level),
+
         "class_name_statement"
         | "extends_statement"
         | "comment"
@@ -36,7 +38,8 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         | "expression_statement"
         | "pass_statement"
         | "if_statement" => apply_fallback_rules(node, source, indent_level),
-        // without trailing whitespace
+
+        // without leading/trailing whitespace
         // "setget" => setget::apply(node, source, indent_level),
         "parameters" | "default_parameter" => parameters::apply(node, source, indent_level),
         "parenthesized_expression" => parenthesized_expression::apply(node, source, indent_level),
@@ -47,6 +50,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "string" => string::apply(node, source, indent_level),
         "dictionary" => dictionary::apply(node, source, indent_level),
         "pair" => pair::apply(node, source, indent_level),
+
         _ => get_node_text(node, source).to_string(),
     }
 }

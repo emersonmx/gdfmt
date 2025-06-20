@@ -11,6 +11,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
 
     output.push_str(&gap_lines);
+
     indent_by(&mut output, indent_level);
 
     for (i, child) in node.children(&mut node.walk()).enumerate() {
