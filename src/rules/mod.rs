@@ -8,6 +8,7 @@ mod pair;
 mod parameters;
 mod setget;
 mod source;
+mod string;
 mod variable;
 
 use crate::node::{get_gap_lines, get_node_text};
@@ -37,6 +38,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "parameters" | "default_parameter" => parameters::apply(node, source, indent_level),
         "annotations" | "annotation" => annotations::apply(node, source, indent_level),
         "array" => array::apply(node, source, indent_level),
+        "string" => string::apply(node, source, indent_level),
         "dictionary" => dictionary::apply(node, source, indent_level),
         "pair" => pair::apply(node, source, indent_level),
         _ => get_node_text(node, source).to_string(),
