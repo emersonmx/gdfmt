@@ -36,13 +36,6 @@ mod tests {
         "class MyClass:\n\tfunc a( b = 24 ,  c  =  42 ):pass",
         "class MyClass:\n\tfunc a(b=24, c=42):\n\t\tpass\n"
     )]
-    fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
-        let formatted = format_code(source_input).unwrap();
-
-        assert_eq!(formatted, expected_output);
-    }
-
-    #[rstest]
     #[case(
         "class A:\n\tpass\nfunc b():\n\tpass",
         "class A:\n\tpass\n\n\nfunc b():\n\tpass\n"
@@ -55,7 +48,7 @@ mod tests {
         "# a comment\n\nclass A:\n\tpass\nclass B:\n\tpass",
         "# a comment\n\nclass A:\n\tpass\n\n\nclass B:\n\tpass\n"
     )]
-    fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

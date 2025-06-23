@@ -69,11 +69,11 @@ mod tests {
     #[case(r#"var e={"one":1}"#, "var e = { \"one\": 1 }\n")]
     #[case(r#"var f={ "one":1 }"#, "var f = { \"one\": 1 }\n")]
     #[case(r#"var g={ "one":1, }"#, "var g = { \"one\": 1 }\n")]
-    #[case("var a = { 1: 1 }", "var a = { 1: 1 }\n")]
-    #[case("var b = {1:1}", "var b = { 1: 1 }\n")]
-    #[case("var c = {1:1,2:2}", "var c = { 1: 1, 2: 2 }\n")]
-    #[case("var d = {1:1,2:2,}", "var d = { 1: 1, 2: 2 }\n")]
-    fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    #[case("var h = { 1: 1 }", "var h = { 1: 1 }\n")]
+    #[case("var i = {1:1}", "var i = { 1: 1 }\n")]
+    #[case("var j = {1:1,2:2}", "var j = { 1: 1, 2: 2 }\n")]
+    #[case("var k = {1:1,2:2,}", "var k = { 1: 1, 2: 2 }\n")]
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

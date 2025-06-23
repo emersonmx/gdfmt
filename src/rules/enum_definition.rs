@@ -85,13 +85,13 @@ mod tests {
     #[case("enum B{ONE,}", "enum B {\n\tONE,\n}\n")]
     #[case("enum C{F = 0}", "enum C {\n\tF = 0,\n}\n")]
     #[case("enum D{F = 0,}", "enum D {\n\tF = 0,\n}\n")]
+    #[case("enum E{ONE}", "enum E {\n\tONE,\n}\n")]
+    #[case("enum F{F=0}", "enum F {\n\tF = 0,\n}\n")]
     #[case(
         "class A:\n\tenum D{F = 0,}",
         "class A:\n\tenum D {\n\t\tF = 0,\n\t}\n"
     )]
-    #[case("enum A{ONE}", "enum A {\n\tONE,\n}\n")]
-    #[case("enum B{F=0}", "enum B {\n\tF = 0,\n}\n")]
-    fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

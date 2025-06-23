@@ -36,7 +36,7 @@ mod tests {
     #[case("var e=[1]", "var e = [1]\n")]
     #[case("var f=[ 1 ]", "var f = [1]\n")]
     #[case("var g=[ 1, ]", "var g = [1]\n")]
-    fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

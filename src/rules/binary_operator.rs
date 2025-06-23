@@ -25,7 +25,7 @@ mod tests {
 
     #[rstest]
     #[case("var a = 1+1", "var a = 1 + 1\n")]
-    fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

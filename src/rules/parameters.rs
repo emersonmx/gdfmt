@@ -55,7 +55,7 @@ mod tests {
     #[case("func d(p1,p2 = 42): pass", "func d(p1, p2=42):\n\tpass\n")]
     #[case("func e(p1 = 24,p2): pass", "func e(p1=24, p2):\n\tpass\n")]
     #[case("func f(p1 = 24,p2 = 42): pass", "func f(p1=24, p2=42):\n\tpass\n")]
-    fn force_spaces_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

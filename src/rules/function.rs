@@ -38,13 +38,6 @@ mod tests {
     #[case("func     a  (   b    ,    c)    :    pass", "func a(b, c):\n\tpass\n")]
     #[case("func a( b = {} ,  c  =  42 ):pass", "func a(b={}, c=42):\n\tpass\n")]
     #[case("func a( b ,  c  =  42 ):pass", "func a(b, c=42):\n\tpass\n")]
-    fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
-        let formatted = format_code(source_input).unwrap();
-
-        assert_eq!(formatted, expected_output);
-    }
-
-    #[rstest]
     #[case(
         "func a():\n\tpass\nfunc b():\n\tpass",
         "func a():\n\tpass\n\n\nfunc b():\n\tpass\n"
@@ -93,7 +86,7 @@ mod tests {
         "func a():\n\tpass\nclass B:\n\tpass",
         "func a():\n\tpass\n\n\nclass B:\n\tpass\n"
     )]
-    fn keep_two_lines_between(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

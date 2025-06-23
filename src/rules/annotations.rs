@@ -53,7 +53,7 @@ mod tests {
     #[case("  @export  var c = 0", "@export var c = 0\n")]
     #[case("  @onready  @export  var d = 0", "@onready @export var d = 0\n")]
     #[case("  @  onready  @  export  var e = 0", "@onready @export var e = 0\n")]
-    fn trim_whitespaces(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);
