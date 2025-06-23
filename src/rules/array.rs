@@ -6,15 +6,15 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     for child in node.children(&mut node.walk()) {
         let next_kind = child.next_sibling().map(|ns| ns.kind());
         let prev_kind = child.prev_sibling().map(|ps| ps.kind());
-        let text = &super::apply(child, source, indent_level);
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            "[" => (text, ""),
-            "]" if prev_kind == Some("[") => (text, ""),
-            "]" => (text, ""),
+            "[" => (&child_apply_fn(), ""),
+            "]" if prev_kind == Some("[") => (&child_apply_fn(), ""),
+            "]" => (&child_apply_fn(), ""),
             "," if next_kind == Some("]") => ("", ""),
-            "," => (text, ""),
-            _ if prev_kind == Some("[") => (text, ""),
-            _ => (text, " "),
+            "," => (&child_apply_fn(), ""),
+            _ if prev_kind == Some("[") => (&child_apply_fn(), ""),
+            _ => (&child_apply_fn(), " "),
         };
         output.push_str(space);
         output.push_str(text);

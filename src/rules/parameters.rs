@@ -13,12 +13,12 @@ fn apply_parameters_rules(node: Node, source: &str, indent_level: usize) -> Stri
 
     for child in node.children(&mut node.walk()) {
         let prev_kind = child.prev_sibling().map(|ps| ps.kind());
-        let text = &super::apply(child, source, indent_level);
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            "(" | ")" | "=" | "," => (text, ""),
-            "identifier" | "default_parameter" if prev_kind == Some("(") => (text, ""),
-            "identifier" => (text, " "),
-            _ => (text, " "),
+            "(" | ")" | "=" | "," => (&child_apply_fn(), ""),
+            "identifier" | "default_parameter" if prev_kind == Some("(") => (&child_apply_fn(), ""),
+            "identifier" => (&child_apply_fn(), " "),
+            _ => (&child_apply_fn(), " "),
         };
         output.push_str(space);
         output.push_str(text);
@@ -31,10 +31,10 @@ fn apply_default_parameter_rules(node: Node, source: &str, indent_level: usize) 
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let text = &super::apply(child, source, indent_level);
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            "identifier" => (text, ""),
-            _ => (text, ""),
+            "identifier" => (&child_apply_fn(), ""),
+            _ => (&child_apply_fn(), ""),
         };
         output.push_str(space);
         output.push_str(text);

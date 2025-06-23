@@ -11,16 +11,16 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     indent_by(&mut output, indent_level);
 
     for child in node.children(&mut node.walk()) {
-        let text = &super::apply(child, source, indent_level);
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            _ if child.prev_sibling().is_none() => (text, ""),
-            "parameters" => (text, ""),
-            ":" => (text, ""),
+            _ if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
+            "parameters" => (&child_apply_fn(), ""),
+            ":" => (&child_apply_fn(), ""),
             "body" => (
                 &format!("\n{}", &super::apply(child, source, indent_level + 1)),
                 "",
             ),
-            _ => (text, " "),
+            _ => (&child_apply_fn(), " "),
         };
         output.push_str(space);
         output.push_str(text);

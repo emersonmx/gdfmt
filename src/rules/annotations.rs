@@ -12,11 +12,11 @@ fn apply_annotations_rules(node: Node, source: &str, indent_level: usize) -> Str
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let text = &super::apply(child, source, indent_level);
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            _ if child.prev_sibling().is_none() => (text, ""),
-            "annotation" => (text, " "),
-            _ => (text, ""),
+            _ if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
+            "annotation" => (&child_apply_fn(), " "),
+            _ => (&child_apply_fn(), ""),
         };
         output.push_str(space);
         output.push_str(text);
@@ -29,11 +29,11 @@ fn apply_annotation_rules(node: Node, source: &str, indent_level: usize) -> Stri
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let text = &super::apply(child, source, indent_level);
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            "@" => (text, ""),
-            "annotation" => (text, " "),
-            _ => (text, ""),
+            "@" => (&child_apply_fn(), ""),
+            "annotation" => (&child_apply_fn(), " "),
+            _ => (&child_apply_fn(), ""),
         };
         output.push_str(space);
         output.push_str(text);

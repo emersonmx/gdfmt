@@ -10,10 +10,11 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     indent_by(&mut output, indent_level);
 
     for child in node.children(&mut node.walk()) {
+        let child_apply_fn = || super::apply(child, source, indent_level);
         let text = match child.kind() {
             _ if child.prev_sibling().is_none() => "",
             "=" => " = ",
-            _ => &super::apply(child, source, indent_level),
+            _ => &child_apply_fn(),
         };
 
         output.push_str(text);
