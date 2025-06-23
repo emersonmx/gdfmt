@@ -4,6 +4,9 @@ mod binary_operator;
 mod body;
 mod class;
 mod dictionary;
+mod enum_definition;
+mod enumerator;
+mod enumerator_list;
 mod float;
 mod function;
 mod integer;
@@ -32,6 +35,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
             function::apply(node, source, indent_level)
         }
         "class_definition" => class::apply(node, source, indent_level),
+        "enum_definition" => enum_definition::apply(node, source, indent_level),
 
         "class_name_statement"
         | "extends_statement"
@@ -54,6 +58,8 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "array" => array::apply(node, source, indent_level),
         "dictionary" => dictionary::apply(node, source, indent_level),
         "pair" => pair::apply(node, source, indent_level),
+        "enumerator_list" => enumerator_list::apply(node, source, indent_level),
+        "enumerator" => enumerator::apply(node, source, indent_level),
 
         _ => get_node_text(node, source).to_string(),
     }
