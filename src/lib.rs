@@ -1,3 +1,4 @@
+#[cfg(debug_assertions)]
 mod debug;
 mod error;
 mod formatter;

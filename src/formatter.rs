@@ -17,9 +17,12 @@ pub fn format_code(source: &str) -> Result<String, Error> {
         ));
     }
 
-    println!("{}", "-".repeat(80));
-    print!("{}", crate::debug::node_to_string(root_node, source, 0));
-    println!("{}", "-".repeat(80));
+    #[cfg(debug_assertions)]
+    {
+        println!("{}", "-".repeat(80));
+        print!("{}", crate::debug::node_to_string(root_node, source, 0));
+        println!("{}", "-".repeat(80));
+    }
 
     Ok(rules::apply(root_node, source, 0))
 }
