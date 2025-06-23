@@ -9,10 +9,10 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     output.push_str(&gap_lines);
     indent_by(&mut output, indent_level);
 
-    for (i, child) in node.children(&mut node.walk()).enumerate() {
+    for child in node.children(&mut node.walk()) {
         let text = &super::apply(child, source, indent_level + 1);
         let (text, space): (&str, &str) = match child.kind() {
-            _ if i == 0 => (text, ""),
+            _ if child.prev_sibling().is_none() => (text, ""),
             ":" | "setget" => (text, ""),
             _ => (text, " "),
         };

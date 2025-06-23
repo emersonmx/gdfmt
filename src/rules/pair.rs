@@ -3,10 +3,10 @@ use tree_sitter::Node;
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
 
-    for (i, child) in node.children(&mut node.walk()).enumerate() {
+    for child in node.children(&mut node.walk()) {
         let text = &super::apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
-            _ if i == 0 => (text, ""),
+            _ if child.prev_sibling().is_none() => (text, ""),
             ":" => (text, ""),
             _ => (text, " "),
         };
