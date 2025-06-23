@@ -1,5 +1,6 @@
 mod annotations;
 mod array;
+mod binary_operator;
 mod body;
 mod class;
 mod dictionary;
@@ -12,6 +13,7 @@ mod parenthesized_expression;
 mod setget;
 mod source;
 mod string;
+mod unary_operator;
 mod variable;
 
 use crate::node::{get_gap_lines, get_node_text};
@@ -44,10 +46,12 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "parameters" | "default_parameter" => parameters::apply(node, source, indent_level),
         "parenthesized_expression" => parenthesized_expression::apply(node, source, indent_level),
         "annotations" | "annotation" => annotations::apply(node, source, indent_level),
+        "unary_operator" => unary_operator::apply(node, source, indent_level),
+        "binary_operator" => binary_operator::apply(node, source, indent_level),
         "integer" => integer::apply(node, source, indent_level),
         "float" => float::apply(node, source, indent_level),
-        "array" => array::apply(node, source, indent_level),
         "string" => string::apply(node, source, indent_level),
+        "array" => array::apply(node, source, indent_level),
         "dictionary" => dictionary::apply(node, source, indent_level),
         "pair" => pair::apply(node, source, indent_level),
 
