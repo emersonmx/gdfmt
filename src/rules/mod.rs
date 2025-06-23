@@ -42,7 +42,9 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         | "signal_statement"
         | "expression_statement"
         | "pass_statement"
-        | "if_statement" => apply_fallback_rules(node, source, indent_level),
+        | "return_statement"
+        | "if_statement"
+        | "for_statement" => apply_fallback_rules(node, source, indent_level),
 
         // without leading/trailing whitespace
         // "setget" => setget::apply(node, source, indent_level),
