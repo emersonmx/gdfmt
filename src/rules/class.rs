@@ -1,12 +1,8 @@
-use crate::node::{get_gap_lines, get_root_gap_lines};
+use crate::node::get_gap_lines;
 use tree_sitter::Node;
 
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
-    let parent_kind = node.parent().map(|n| n.kind());
-    let gap_lines = match parent_kind {
-        Some("source") => get_root_gap_lines(node, source),
-        _ => get_gap_lines(node, source),
-    };
+    let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
 
     output.push_str(&gap_lines);

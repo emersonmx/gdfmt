@@ -10,25 +10,19 @@ pub fn get_node_text<'a>(node: Node<'a>, source: &'a str) -> &'a str {
     &source[node.byte_range()]
 }
 
-pub fn get_root_gap_lines(node: Node, source: &str) -> String {
-    let prev_node = node.prev_sibling();
+pub fn get_gap_lines(node: Node, source: &str) -> String {
     let lines = match (
         KINDS_WITH_TWO_LINES_BETWEEN.contains(&node.kind()),
-        prev_node,
+        node.parent().map(|n| n.kind()),
+        node.prev_sibling().map(|n| n.kind()),
     ) {
-        (true, Some(prev)) => {
-            if prev.kind() == "comment" {
-                &get_gap_lines(node, source)
-            } else {
-                "\n\n"
-            }
-        }
-        _ => &get_gap_lines(node, source),
+        (true, Some("source"), Some(prev_kind)) if prev_kind != "comment" => "\n\n",
+        _ => &get_normalized_gap_lines(node, source),
     };
     lines.to_string()
 }
 
-pub fn get_gap_lines(node: Node, source: &str) -> String {
+fn get_normalized_gap_lines(node: Node, source: &str) -> String {
     let previous = node.prev_sibling();
     let gap_start_byte = if let Some(prev_node) = previous {
         prev_node.end_byte()
