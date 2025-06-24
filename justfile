@@ -2,7 +2,7 @@
     cargo build
 
 @run:
-    cargo run --quiet -- ./samples/run.gd
+    cat ./samples/run.gd | cargo run --quiet --
 
 @watch:
     bacon
