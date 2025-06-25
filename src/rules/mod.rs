@@ -43,7 +43,8 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         | "pass_statement"
         | "return_statement"
         | "if_statement"
-        | "for_statement" => apply_fallback_rules(node, source, indent_level),
+        | "for_statement"
+        | "while_statement" => apply_fallback_rules(node, source, indent_level),
 
         // without leading/trailing whitespace
         "parameters" => parameters::apply(node, source, indent_level),
