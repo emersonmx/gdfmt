@@ -38,18 +38,26 @@ fn apply_enumerator_list_rules(node: Node, source: &str, indent_level: usize) ->
     for child in node.children(&mut node.walk()) {
         let prev_kind = child.prev_sibling().map(|ps| ps.kind());
         let child_apply_fn = || apply(child, source, indent_level);
-        let (text, space, indent_offset): (&str, &str, Option<usize>) = match child.kind() {
-            "{" => (&child_apply_fn(), "", None),
-            "}" if prev_kind == Some("{") => (&child_apply_fn(), "", None),
-            "}" if prev_kind == Some("enumerator") => (&child_apply_fn(), ",\n", Some(0)),
-            "}" => (&child_apply_fn(), "\n", Some(0)),
-            "," => (&child_apply_fn(), "", None),
-            _ => (&child_apply_fn(), "\n", Some(1)),
+        let (text, space): (&str, &str) = match child.kind() {
+            "{" if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
+            "enumerator" => {
+                output.push('\n');
+                indent_by(&mut output, indent_level + 1);
+                (&child_apply_fn(), "")
+            }
+            "," => (&child_apply_fn(), ""),
+            "}" if prev_kind == Some("{") => (&child_apply_fn(), ""),
+            "}" => {
+                if prev_kind == Some("enumerator") {
+                    output.push(',');
+                }
+                output.push('\n');
+                indent_by(&mut output, indent_level);
+                (&child_apply_fn(), "")
+            }
+            _ => unreachable!(),
         };
         output.push_str(space);
-        if let Some(offset) = indent_offset {
-            indent_by(&mut output, indent_level + offset);
-        }
         output.push_str(text);
     }
 
