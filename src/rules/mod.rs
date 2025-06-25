@@ -57,7 +57,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "float" => float::apply(node, source, indent_level),
         "string" => string::apply(node, source, indent_level),
         "array" => array::apply(node, source, indent_level),
-        "dictionary" | "pair" => dictionary::apply(node, source, indent_level),
+        "dictionary" => dictionary::apply(node, source, indent_level),
 
         _ => get_node_text(node, source).to_string(),
     }

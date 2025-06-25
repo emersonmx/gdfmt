@@ -4,7 +4,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
         "dictionary" => apply_dictionary_rules(node, source, indent_level),
         "pair" => apply_pair_rules(node, source, indent_level),
-        _ => unreachable!(),
+        _ => super::apply(node, source, indent_level),
     }
 }
 
@@ -14,7 +14,7 @@ fn apply_dictionary_rules(node: Node, source: &str, indent_level: usize) -> Stri
     for child in node.children(&mut node.walk()) {
         let next_kind = child.next_sibling().map(|ns| ns.kind());
         let prev_kind = child.prev_sibling().map(|ps| ps.kind());
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "{" => (&child_apply_fn(), ""),
             "}" if prev_kind == Some("{") => (&child_apply_fn(), ""),
@@ -34,7 +34,7 @@ fn apply_pair_rules(node: Node, source: &str, indent_level: usize) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             _ if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
             ":" => (&child_apply_fn(), ""),
