@@ -55,7 +55,7 @@ fn apply_enumerator_list_rules(node: Node, source: &str, indent_level: usize) ->
                 indent_by(&mut output, indent_level);
                 (&child_apply_fn(), "")
             }
-            _ => unreachable!(),
+            _ => (&child_apply_fn(), ""),
         };
         output.push_str(space);
         output.push_str(text);
