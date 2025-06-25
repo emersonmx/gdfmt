@@ -42,9 +42,7 @@ pub fn apply(node: Node, source: &str, _indent_level: usize) -> String {
             SINGLE_QUOTE,
             &text.replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE),
         ),
-        (DOUBLE_QUOTE, _, _) => (DOUBLE_QUOTE, text),
-
-        _ => unreachable!(),
+        _ => (DOUBLE_QUOTE, text),
     };
 
     let mut output = String::new();
