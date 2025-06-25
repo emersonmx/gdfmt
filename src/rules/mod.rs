@@ -33,6 +33,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         }
         "class_definition" => class::apply(node, source, indent_level),
         "enum_definition" => enum_definition::apply(node, source, indent_level),
+        "setget" => setget::apply(node, source, indent_level),
 
         "class_name_statement"
         | "extends_statement"
@@ -45,7 +46,6 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         | "for_statement" => apply_fallback_rules(node, source, indent_level),
 
         // without leading/trailing whitespace
-        // "setget" => setget::apply(node, source, indent_level),
         "parameters" => parameters::apply(node, source, indent_level),
         "parenthesized_expression" => parenthesized_expression::apply(node, source, indent_level),
         "annotations" => annotations::apply(node, source, indent_level),
