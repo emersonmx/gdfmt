@@ -2,11 +2,11 @@ mod annotations;
 mod array;
 mod binary_operator;
 mod body;
-mod class;
+mod class_definition;
 mod dictionary;
 mod enum_definition;
 mod float;
-mod function;
+mod function_definition;
 mod integer;
 mod parameters;
 mod parenthesized_expression;
@@ -14,7 +14,7 @@ mod setget;
 mod source;
 mod string;
 mod unary_operator;
-mod variable;
+mod variable_statement;
 
 use crate::node::{get_gap_lines, get_node_text};
 use crate::text::indent_by;
@@ -27,11 +27,11 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "body" => body::apply(node, source, indent_level),
 
         // with trailing line
-        "variable_statement" => variable::apply(node, source, indent_level),
+        "variable_statement" => variable_statement::apply(node, source, indent_level),
         "function_definition" | "constructor_definition" => {
-            function::apply(node, source, indent_level)
+            function_definition::apply(node, source, indent_level)
         }
-        "class_definition" => class::apply(node, source, indent_level),
+        "class_definition" => class_definition::apply(node, source, indent_level),
         "enum_definition" => enum_definition::apply(node, source, indent_level),
         "setget" => setget::apply(node, source, indent_level),
 
