@@ -27,5 +27,4 @@ The formatted content will be printed to standard output.
 
 If you find `gdfmt` useful, consider supporting its development:
 
-*   **PayPal**: [emersonmx@gmail.com](mailto:emersonmx@gmail.com)
 *   **Ko-fi**: [https://ko-fi.com/emersonmx](https://ko-fi.com/emersonmx)
