@@ -32,9 +32,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
             function::apply(node, source, indent_level)
         }
         "class_definition" => class::apply(node, source, indent_level),
-        "enum_definition" | "enumerator_list" | "enumerator" => {
-            enum_definition::apply(node, source, indent_level)
-        }
+        "enum_definition" => enum_definition::apply(node, source, indent_level),
 
         "class_name_statement"
         | "extends_statement"

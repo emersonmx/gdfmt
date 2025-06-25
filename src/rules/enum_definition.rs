@@ -6,7 +6,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "enum_definition" => apply_enum_definition_rules(node, source, indent_level),
         "enumerator_list" => apply_enumerator_list_rules(node, source, indent_level),
         "enumerator" => apply_enumerator_rules(node, source, indent_level),
-        _ => unreachable!(),
+        _ => super::apply(node, source, indent_level),
     }
 }
 
@@ -18,7 +18,7 @@ fn apply_enum_definition_rules(node: Node, source: &str, indent_level: usize) ->
     indent_by(&mut output, indent_level);
 
     for child in node.children(&mut node.walk()) {
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "enum" => (&child_apply_fn(), ""),
             _ => (&child_apply_fn(), " "),
@@ -37,7 +37,7 @@ fn apply_enumerator_list_rules(node: Node, source: &str, indent_level: usize) ->
 
     for child in node.children(&mut node.walk()) {
         let prev_kind = child.prev_sibling().map(|ps| ps.kind());
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space, indent_offset): (&str, &str, Option<usize>) = match child.kind() {
             "{" => (&child_apply_fn(), "", None),
             "}" if prev_kind == Some("{") => (&child_apply_fn(), "", None),
@@ -60,7 +60,7 @@ pub fn apply_enumerator_rules(node: Node, source: &str, indent_level: usize) -> 
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             _ if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
             "=" => (&child_apply_fn(), " "),
