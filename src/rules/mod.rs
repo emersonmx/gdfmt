@@ -48,7 +48,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
 
         // without leading/trailing whitespace
         // "setget" => setget::apply(node, source, indent_level),
-        "parameters" | "default_parameter" => parameters::apply(node, source, indent_level),
+        "parameters" => parameters::apply(node, source, indent_level),
         "parenthesized_expression" => parenthesized_expression::apply(node, source, indent_level),
         "annotations" => annotations::apply(node, source, indent_level),
         "unary_operator" => unary_operator::apply(node, source, indent_level),
