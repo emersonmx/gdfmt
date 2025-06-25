@@ -4,7 +4,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
         "annotations" => apply_annotations_rules(node, source, indent_level),
         "annotation" => apply_annotation_rules(node, source, indent_level),
-        _ => unreachable!(),
+        _ => super::apply(node, source, indent_level),
     }
 }
 
@@ -12,7 +12,7 @@ fn apply_annotations_rules(node: Node, source: &str, indent_level: usize) -> Str
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             _ if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
             "annotation" => (&child_apply_fn(), " "),
@@ -29,7 +29,7 @@ fn apply_annotation_rules(node: Node, source: &str, indent_level: usize) -> Stri
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
-        let child_apply_fn = || super::apply(child, source, indent_level);
+        let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "@" => (&child_apply_fn(), ""),
             "annotation" => (&child_apply_fn(), " "),
