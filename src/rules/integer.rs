@@ -17,7 +17,10 @@ pub fn apply(node: Node, source: &str, _indent_level: usize) -> String {
     ) {
         (true, _) => (
             BINARY_PREFIX,
-            &format_with_underscores(text.trim_start_matches(BINARY_PREFIX), BINARY_GROUP_LENGTH),
+            &format_with_underscores(
+                text.trim_start_matches(BINARY_PREFIX),
+                BINARY_GROUP_LENGTH,
+            ),
         ),
         (_, true) => (
             HEXADECIMAL_PREFIX,
@@ -49,11 +52,8 @@ fn format_with_underscores(s: &str, group_length: usize) -> String {
     let mut result = String::with_capacity(len + (len - 1) / group_length);
 
     let first_group_len = len % group_length;
-    let first_group_len = if first_group_len == 0 {
-        group_length
-    } else {
-        first_group_len
-    };
+    let first_group_len =
+        if first_group_len == 0 { group_length } else { first_group_len };
 
     result.push_str(&s[0..first_group_len]);
 

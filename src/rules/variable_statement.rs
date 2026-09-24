@@ -37,7 +37,10 @@ mod tests {
     #[case("var a = 0\nvar b = 0", "var a = 0\nvar b = 0\n")]
     #[case("var b = 0\n\nvar b = 0", "var b = 0\n\nvar b = 0\n")]
     #[case("var c = 0\n\n\n\nvar b = 0", "var c = 0\n\nvar b = 0\n")]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

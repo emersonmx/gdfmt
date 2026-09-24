@@ -3,14 +3,22 @@ use tree_sitter::Node;
 
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
-        "enum_definition" => apply_enum_definition_rules(node, source, indent_level),
-        "enumerator_list" => apply_enumerator_list_rules(node, source, indent_level),
+        "enum_definition" => {
+            apply_enum_definition_rules(node, source, indent_level)
+        }
+        "enumerator_list" => {
+            apply_enumerator_list_rules(node, source, indent_level)
+        }
         "enumerator" => apply_enumerator_rules(node, source, indent_level),
         _ => super::apply(node, source, indent_level),
     }
 }
 
-fn apply_enum_definition_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_enum_definition_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();
 
@@ -32,7 +40,11 @@ fn apply_enum_definition_rules(node: Node, source: &str, indent_level: usize) ->
     output
 }
 
-fn apply_enumerator_list_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_enumerator_list_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -64,7 +76,11 @@ fn apply_enumerator_list_rules(node: Node, source: &str, indent_level: usize) ->
     output
 }
 
-pub fn apply_enumerator_rules(node: Node, source: &str, indent_level: usize) -> String {
+pub fn apply_enumerator_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -99,7 +115,10 @@ mod tests {
         "class A:\n\tenum D{F = 0,}",
         "class A:\n\tenum D {\n\t\tF = 0,\n\t}\n"
     )]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

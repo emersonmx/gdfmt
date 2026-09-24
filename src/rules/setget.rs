@@ -4,7 +4,9 @@ use tree_sitter::Node;
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
         "setget" => apply_setget_rules(node, source, indent_level),
-        "set_body" | "get_body" => apply_setget_body_rules(node, source, indent_level),
+        "set_body" | "get_body" => {
+            apply_setget_body_rules(node, source, indent_level)
+        }
         "body" => super::apply(node, source, indent_level + 1),
         _ => super::apply(node, source, indent_level),
     }
@@ -42,7 +44,11 @@ fn apply_setget_rules(node: Node, source: &str, indent_level: usize) -> String {
     output
 }
 
-fn apply_setget_body_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_setget_body_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     indent_by(&mut output, indent_level);
@@ -90,7 +96,10 @@ mod tests {
         "var d:\n\tset(value):\n\t\td = value\n\tget:\n\t\treturn 42",
         "var d:\n\tset(value):\n\t\td = value\n\tget:\n\t\treturn 42\n"
     )]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

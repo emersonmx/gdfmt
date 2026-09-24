@@ -8,7 +8,11 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     }
 }
 
-fn apply_dictionary_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_dictionary_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -73,7 +77,10 @@ mod tests {
     #[case("var i = {1:1}", "var i = { 1: 1 }\n")]
     #[case("var j = {1:1,2:2}", "var j = { 1: 1, 2: 2 }\n")]
     #[case("var k = {1:1,2:2,}", "var k = { 1: 1, 2: 2 }\n")]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

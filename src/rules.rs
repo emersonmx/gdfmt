@@ -27,11 +27,15 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         "body" => body::apply(node, source, indent_level),
 
         // with trailing line
-        "variable_statement" => variable_statement::apply(node, source, indent_level),
+        "variable_statement" => {
+            variable_statement::apply(node, source, indent_level)
+        }
         "function_definition" | "constructor_definition" => {
             function_definition::apply(node, source, indent_level)
         }
-        "class_definition" => class_definition::apply(node, source, indent_level),
+        "class_definition" => {
+            class_definition::apply(node, source, indent_level)
+        }
         "enum_definition" => enum_definition::apply(node, source, indent_level),
         "setget" => setget::apply(node, source, indent_level),
 
@@ -49,7 +53,9 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
         // without leading/trailing whitespace
         "annotations" => annotations::apply(node, source, indent_level),
         "parameters" => parameters::apply(node, source, indent_level),
-        "parenthesized_expression" => parenthesized_expression::apply(node, source, indent_level),
+        "parenthesized_expression" => {
+            parenthesized_expression::apply(node, source, indent_level)
+        }
         "unary_operator" => unary_operator::apply(node, source, indent_level),
         "binary_operator" => binary_operator::apply(node, source, indent_level),
         "integer" => integer::apply(node, source, indent_level),
@@ -62,7 +68,11 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     }
 }
 
-fn apply_fallback_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_fallback_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let text = get_node_text(node, source);
     let gap_lines = get_gap_lines(node, source);
     let mut output = String::new();

@@ -1,10 +1,7 @@
 use tree_sitter::Node;
 
-const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] = [
-    "function_definition",
-    "class_definition",
-    "constructor_definition",
-];
+const KINDS_WITH_TWO_LINES_BETWEEN: [&str; 3] =
+    ["function_definition", "class_definition", "constructor_definition"];
 
 pub fn get_node_text<'a>(node: Node<'a>, source: &'a str) -> &'a str {
     &source[node.byte_range()]
@@ -16,7 +13,9 @@ pub fn get_gap_lines(node: Node, source: &str) -> String {
         node.parent().map(|n| n.kind()),
         node.prev_sibling().map(|n| n.kind()),
     ) {
-        (true, Some("source"), Some(prev_kind)) if prev_kind != "comment" => "\n\n",
+        (true, Some("source"), Some(prev_kind)) if prev_kind != "comment" => {
+            "\n\n"
+        }
         _ => &get_normalized_gap_lines(node, source),
     };
     lines.to_string()

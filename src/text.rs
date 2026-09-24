@@ -22,7 +22,10 @@ mod tests {
     #[case("\n\n", "\n")]
     #[case("\n\n\n", "\n")]
     #[case("text\n\n\n", "text\n")]
-    fn should_have_only_one_end_line(#[case] input: &str, #[case] output: &str) {
+    fn should_have_only_one_end_line(
+        #[case] input: &str,
+        #[case] output: &str,
+    ) {
         let mut input = input.to_string();
         force_end_line(&mut input);
 

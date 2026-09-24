@@ -25,7 +25,10 @@ mod tests {
 
     #[rstest]
     #[case("var a = 1+1", "var a = 1 + 1\n")]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);
@@ -37,7 +40,10 @@ mod tests {
     #[case("var b = foo||bar", "var b = foo or bar\n")]
     #[case("var b = foo or bar", "var b = foo or bar\n")]
     #[case("var c = foo&&bar||!baz", "var c = foo and bar or not baz\n")]
-    #[case("var c = foo and bar or not baz", "var c = foo and bar or not baz\n")]
+    #[case(
+        "var c = foo and bar or not baz",
+        "var c = foo and bar or not baz\n"
+    )]
     fn prefer_the_plain_english_versions_of_boolean_operators(
         #[case] source_input: &str,
         #[case] expected_output: &str,

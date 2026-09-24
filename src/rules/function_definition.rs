@@ -17,7 +17,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
             "parameters" => (&child_apply_fn(), ""),
             ":" => (&child_apply_fn(), ""),
             "body" => (
-                &format!("\n{}", &super::apply(child, source, indent_level + 1)),
+                &format!("\n{}", super::apply(child, source, indent_level + 1)),
                 "",
             ),
             _ => (&child_apply_fn(), " "),
@@ -35,8 +35,14 @@ mod tests {
     use rstest::*;
 
     #[rstest]
-    #[case("func     a  (   b    ,    c)    :    pass", "func a(b, c):\n\tpass\n")]
-    #[case("func a( b = {} ,  c  =  42 ):pass", "func a(b={}, c=42):\n\tpass\n")]
+    #[case(
+        "func     a  (   b    ,    c)    :    pass",
+        "func a(b, c):\n\tpass\n"
+    )]
+    #[case(
+        "func a( b = {} ,  c  =  42 ):pass",
+        "func a(b={}, c=42):\n\tpass\n"
+    )]
     #[case("func a( b ,  c  =  42 ):pass", "func a(b, c=42):\n\tpass\n")]
     #[case(
         "func a():\n\tpass\nfunc b():\n\tpass",
@@ -86,7 +92,10 @@ mod tests {
         "func a():\n\tpass\nclass B:\n\tpass",
         "func a():\n\tpass\n\n\nclass B:\n\tpass\n"
     )]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

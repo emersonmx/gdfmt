@@ -3,12 +3,18 @@ use tree_sitter::Node;
 pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     match node.kind() {
         "parameters" => apply_parameters_rules(node, source, indent_level),
-        "default_parameter" => apply_default_parameter_rules(node, source, indent_level),
+        "default_parameter" => {
+            apply_default_parameter_rules(node, source, indent_level)
+        }
         _ => super::apply(node, source, indent_level),
     }
 }
 
-fn apply_parameters_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_parameters_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -16,7 +22,9 @@ fn apply_parameters_rules(node: Node, source: &str, indent_level: usize) -> Stri
         let child_apply_fn = || apply(child, source, indent_level);
         let (text, space): (&str, &str) = match child.kind() {
             "(" | ")" | "=" | "," => (&child_apply_fn(), ""),
-            "identifier" | "default_parameter" if prev_kind == Some("(") => (&child_apply_fn(), ""),
+            "identifier" | "default_parameter" if prev_kind == Some("(") => {
+                (&child_apply_fn(), "")
+            }
             "identifier" => (&child_apply_fn(), " "),
             _ => (&child_apply_fn(), " "),
         };
@@ -27,7 +35,11 @@ fn apply_parameters_rules(node: Node, source: &str, indent_level: usize) -> Stri
     output
 }
 
-fn apply_default_parameter_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_default_parameter_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -55,7 +67,10 @@ mod tests {
     #[case("func d(p1,p2 = 42): pass", "func d(p1, p2=42):\n\tpass\n")]
     #[case("func e(p1 = 24,p2): pass", "func e(p1=24, p2):\n\tpass\n")]
     #[case("func f(p1 = 24,p2 = 42): pass", "func f(p1=24, p2=42):\n\tpass\n")]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

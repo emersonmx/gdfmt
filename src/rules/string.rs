@@ -25,10 +25,9 @@ pub fn apply(node: Node, source: &str, _indent_level: usize) -> String {
                 .replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE)
                 .replace(DOUBLE_QUOTE, ESCAPED_DOUBLE_QUOTE),
         ),
-        (SINGLE_QUOTE, _, true) => (
-            SINGLE_QUOTE,
-            &text.replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE),
-        ),
+        (SINGLE_QUOTE, _, true) => {
+            (SINGLE_QUOTE, &text.replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE))
+        }
         (SINGLE_QUOTE, _, _) => (DOUBLE_QUOTE, text),
 
         (DOUBLE_QUOTE, true, _) => (
@@ -38,10 +37,9 @@ pub fn apply(node: Node, source: &str, _indent_level: usize) -> String {
                 .replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE)
                 .replace(DOUBLE_QUOTE, ESCAPED_DOUBLE_QUOTE),
         ),
-        (DOUBLE_QUOTE, _, true) => (
-            SINGLE_QUOTE,
-            &text.replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE),
-        ),
+        (DOUBLE_QUOTE, _, true) => {
+            (SINGLE_QUOTE, &text.replace(ESCAPED_DOUBLE_QUOTE, DOUBLE_QUOTE))
+        }
         _ => (DOUBLE_QUOTE, text),
     };
 
@@ -81,7 +79,10 @@ mod tests {
         r#"var i = "hello\"\'\"\' \'\"\'\"world""#,
         "var i = \"hello\\\"'\\\"' '\\\"'\\\"world\"\n"
     )]
-    fn fix_string_quotes(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn fix_string_quotes(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

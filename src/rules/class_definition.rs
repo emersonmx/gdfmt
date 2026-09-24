@@ -13,7 +13,7 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
             _ if child.prev_sibling().is_none() => (&child_apply_fn(), ""),
             ":" => (&child_apply_fn(), ""),
             "body" => (
-                &format!("\n{}", &super::apply(child, source, indent_level + 1)),
+                &format!("\n{}", super::apply(child, source, indent_level + 1)),
                 "",
             ),
             _ => (&child_apply_fn(), " "),
@@ -48,7 +48,10 @@ mod tests {
         "# a comment\n\nclass A:\n\tpass\nclass B:\n\tpass",
         "# a comment\n\nclass A:\n\tpass\n\n\nclass B:\n\tpass\n"
     )]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

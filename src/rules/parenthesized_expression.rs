@@ -25,7 +25,10 @@ mod tests {
     #[rstest]
     #[case("var a = (true)", "var a = true\n")]
     #[case("var b = (is_colliding())", "var b = is_colliding()\n")]
-    fn remove_unnecessary_parentheses(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn remove_unnecessary_parentheses(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

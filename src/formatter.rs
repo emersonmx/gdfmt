@@ -1,14 +1,26 @@
-use crate::error::Error;
 use crate::rules;
 use tree_sitter::Parser;
 use tree_sitter_gdscript::LANGUAGE as gdscript_language;
+
+use thiserror::Error;
+use tree_sitter::LanguageError;
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("unable to load language")]
+    UnableToLoadLanguage(#[from] LanguageError),
+    #[error("unable to parse: {0}")]
+    UnableToParse(String),
+}
 
 pub fn format_code(source: &str) -> Result<String, Error> {
     let mut parser = Parser::new();
     parser.set_language(&gdscript_language.into())?;
 
     let tree = parser.parse(source, None).ok_or_else(|| {
-        Error::UnableToParse("Internal parser error: Failed to produce syntax tree.".to_string())
+        Error::UnableToParse(
+            "Internal parser error: Failed to produce syntax tree.".to_string(),
+        )
     })?;
     let root_node = tree.root_node();
     if root_node.has_error() {
@@ -40,7 +52,8 @@ mod tests {
 
     #[rstest]
     fn compare_with_sample_styleguide() {
-        let expected = std::fs::read_to_string("samples/styleguide.gd").unwrap();
+        let expected =
+            std::fs::read_to_string("samples/styleguide.gd").unwrap();
 
         let formatted = format_code(&expected).unwrap();
 

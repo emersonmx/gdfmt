@@ -8,7 +8,11 @@ pub fn apply(node: Node, source: &str, indent_level: usize) -> String {
     }
 }
 
-fn apply_annotations_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_annotations_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -25,7 +29,11 @@ fn apply_annotations_rules(node: Node, source: &str, indent_level: usize) -> Str
     output
 }
 
-fn apply_annotation_rules(node: Node, source: &str, indent_level: usize) -> String {
+fn apply_annotation_rules(
+    node: Node,
+    source: &str,
+    indent_level: usize,
+) -> String {
     let mut output = String::new();
 
     for child in node.children(&mut node.walk()) {
@@ -52,8 +60,14 @@ mod tests {
     #[case("@export @onready var b = 0", "@export @onready var b = 0\n")]
     #[case("  @export  var c = 0", "@export var c = 0\n")]
     #[case("  @onready  @export  var d = 0", "@onready @export var d = 0\n")]
-    #[case("  @  onready  @  export  var e = 0", "@onready @export var e = 0\n")]
-    fn enforce_spacing_rules(#[case] source_input: &str, #[case] expected_output: &str) {
+    #[case(
+        "  @  onready  @  export  var e = 0",
+        "@onready @export var e = 0\n"
+    )]
+    fn enforce_spacing_rules(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);

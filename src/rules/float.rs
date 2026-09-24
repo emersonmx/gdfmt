@@ -23,7 +23,10 @@ mod tests {
     #[rstest]
     #[case("var a = .234", "var a = 0.234\n")]
     #[case("var b = 13.", "var b = 13.0\n")]
-    fn force_leading_or_trailing_zero(#[case] source_input: &str, #[case] expected_output: &str) {
+    fn force_leading_or_trailing_zero(
+        #[case] source_input: &str,
+        #[case] expected_output: &str,
+    ) {
         let formatted = format_code(source_input).unwrap();
 
         assert_eq!(formatted, expected_output);
