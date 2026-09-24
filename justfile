@@ -47,5 +47,8 @@ ci:
 test *ARGS:
     cargo test {{ ARGS }}
 
+review-snap *ARGS:
+    cargo insta review {{ ARGS }}
+
 clean *ARGS:
     cargo clean {{ ARGS }}
