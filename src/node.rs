@@ -21,6 +21,7 @@ pub fn get_gap_lines(node: Node, source: &str) -> String {
     lines.to_string()
 }
 
+#[allow(dead_code)]
 fn get_normalized_gap_lines(node: Node, source: &str) -> String {
     let previous = node.prev_sibling();
     let gap_start_byte = if let Some(prev_node) = previous {
@@ -33,4 +34,26 @@ fn get_normalized_gap_lines(node: Node, source: &str) -> String {
     let gap_lines: String = gap_str.chars().filter(|c| *c == '\n').collect();
     let lines = if gap_lines.len() > 1 { "\n" } else { "" };
     lines.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::*;
+
+    #[rstest]
+    fn get_node_text_should_return_correct_text() {
+        let source = "var x = 10\nprint(x)";
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_gdscript::LANGUAGE.into()).unwrap();
+        let tree = parser.parse(source, None).unwrap();
+        let root_node = tree.root_node();
+
+        let var_statement_node = root_node
+            .child(0)
+            .expect("Expected a child node for the variable statement");
+        let text = get_node_text(var_statement_node, source);
+
+        assert_eq!(text, "var x = 10");
+    }
 }
