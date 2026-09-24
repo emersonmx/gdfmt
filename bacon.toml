@@ -1,6 +1,0 @@
-[jobs.run]
-command = ["just", "run"]
-need_stdout = true
-allow_warnings = true
-background = false
-watch = ["samples/run.gd"]

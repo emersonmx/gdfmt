@@ -1,27 +1,51 @@
-@build:
-    cargo build
+set quiet
 
-@run:
-    cat ./samples/run.gd | cargo run --quiet --
+setup:
+    #!/usr/bin/env bash
+    set -euo pipefail
 
-@watch:
-    bacon
+    if ! command -v lefthook &> /dev/null; then
+        echo "lefthook not found, installing..."
+        go install github.com/evilmartians/lefthook/v2@latest
+    fi
+    lefthook install
 
-@format:
+    if ! command -v bacon &> /dev/null; then
+        echo "bacon not found, installing..."
+        cargo install --locked bacon
+    fi
+
+    if ! command -v cargo-insta &> /dev/null; then
+        echo "tarpaulin not found, installing..."
+        cargo install --locked cargo-insta
+    fi
+
+build:
+    cargo build --release
+
+run:
+    cargo run
+
+watch *ARGS:
+    bacon {{ ARGS }}
+
+format:
     cargo fmt
 
-@lint:
-    cargo clippy
-
-@lint-fix:
-    cargo clippy --fix --allow-dirty
-
-@ci:
+lint:
+    cargo clippy --locked --workspace --all-targets --all-features
     cargo fmt --check
-    cargo clippy
 
-@test:
-    cargo test
+lint-fix:
+    cargo clippy --fix --allow-dirty --locked --workspace --all-targets --all-features
 
-@clean:
-    cargo clean
+ci:
+    cargo fmt --check
+    cargo clippy --locked --workspace --all-targets --profile ci --all-features
+
+
+test *ARGS:
+    cargo test {{ ARGS }}
+
+clean *ARGS:
+    cargo clean {{ ARGS }}
